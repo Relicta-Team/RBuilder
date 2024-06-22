@@ -1,0 +1,5 @@
+RBuilder/build/**
+RBuilder/dist/**
+RBuilder/__pycache__/**
+RBuilder/yaml/__pycache__/**
+RBuilder/app.exe
