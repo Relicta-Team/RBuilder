@@ -1,0 +1,42 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compiling",
+            "type": "process",
+            "command": "pyinstaller",
+            "args": [
+                "--noconfirm",
+                "--onefile",
+                "--console",
+                // "--icon",
+                // "../bosco_logo.ico",
+                "--version-file",
+                "${workspaceRoot}/vinf.txt",
+                "${workspaceRoot}/app.py"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}",
+            },
+           
+            //set as hidden
+            "hide": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Build app",
+            "dependsOn": "Compiling",
+            "type": "shell",
+            "command": "Move-Item -Path ${workspaceRoot}/dist/app.exe -Destination ${workspaceRoot}/dist/rb.exe -Force",
+            "options": {
+                "cwd": "${workspaceRoot}",
+            },
+            "icon": {
+                "id": "symbol-package"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

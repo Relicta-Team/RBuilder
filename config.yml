@@ -1,0 +1,35 @@
+version: 1
+
+# Project pathes, relative or absolute
+pathes:
+  # original sources repo
+  sources: ./sources
+  vm_dir: ./vm
+
+# this generating definelist with dependencies
+defines:
+  RELEASE:
+  DEBUG:
+
+  TEST_ALL:
+    needs: DEBUG
+  TEST_1:
+    enable_on: TEST_ALL
+  TEST_2:
+    enable_on: TEST_ALL
+    value: 123
+  TEST_COMMON:
+    enable_on: DEBUG
+
+  ALLOW_CONSOLE:
+
+build:
+  include_headers:
+  exclude_headers:
+
+# common runtime options
+runtime:
+  show_app_window: false
+  preload_timeout: 3000 # in ms
+  delete_logs_on_start: true
+  

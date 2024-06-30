@@ -1,5 +1,10 @@
-RBuilder/build/**
-RBuilder/dist/**
-RBuilder/__pycache__/**
-RBuilder/yaml/__pycache__/**
-RBuilder/app.exe
+build/**
+dist/**
+__pycache__/**
+yaml/__pycache__/**
+packlib/__pycache__/**
+app.exe
+VM/mpmissions/loader.vr.pbo
+VM/preload/**
+VM/src/**
+VM/cmp.exe
