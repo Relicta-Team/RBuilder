@@ -13,6 +13,9 @@ class AppContext:
         setattr(self,vname,vval)
         return vval
 
-    def setCurrentLogger(self,loggername):
+    def setCurrentLogger(self,loggername=""):
+        if loggername=="":
+            self.logger = self.main_logger
+            return
         self.logger = logging.getLogger(loggername)
     

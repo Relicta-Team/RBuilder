@@ -5,7 +5,11 @@ from Constants import ExitCodes
 from util import appExit
 import cfg
 import deploy
+from Builder.package import buildProcess
+from Runner import RBuilderRun
 from AppCtx import AppContext
+
+APP_VERSION = "1.0.0"
 
 try:
     logging.basicConfig(level=logging.INFO,format='[%(name)s] %(levelname)s - %(message)s')
@@ -16,11 +20,15 @@ try:
     
     cobj = ctx.setContextVar("cfg",cfg.loadCfg())
 
-    ctx.logger.info("Starting...")
+    ctx.logger.info("RBuilder version: {}".format(APP_VERSION))
 
     parser = getParser(ctx,cobj)
     #parser.print_help()
-    args = parser.parse_args(['-init','run'])
+    modes = [
+        ['run','-f','RELEASE','-f',"VALCOUNT","123"],
+        ['-init','build']
+    ]
+    args = parser.parse_args(modes[0])
     ctx.setContextVar("args",args)
     
     if len(sys.argv) == 1:
@@ -34,10 +42,10 @@ try:
         if not deploy.deployMain(ctx): appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
 
     if args.actionType == 'build':
-        print("Building not supported in this version")
-        appExit(ExitCodes.NOT_SUPPORTED)
+        buildProcess(ctx)
+        appExit(ExitCodes.SUCCESS)
     elif args.actionType == 'run':
-        print("Running...")
+        appExit(RBuilderRun(ctx))
     
 
 except Exception as e:

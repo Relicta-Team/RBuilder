@@ -11,7 +11,7 @@
         - compiling, executing code
 */
 
-#include <..\host\engine.hpp>
+#include <..\src\host\engine.hpp>
 
 
 isRBuilder = true;
@@ -76,16 +76,15 @@ call RBuilder_postInit; //preinit logfile
 //initialize rebgidge
 ["STAGE INITIALIZE REBRIDGE"] call cprint;
 
+//call compile preprocessFileLineNumbers "src\ReBridge\ReBridge_init.sqf";
 #include "..\src\ReBridge\ReBridge_init.sqf"
 
-//load rebridge_getWorkspace
-#include "_not_implemented.sqf"
-
 // активируем компонет
+private _logReBridge = (call ReBridge_getWorkspace)+"\logs\ReEngineLogs";
 [] call ReBridge_start;
 // Загрузим проект со скриптами (Путь должен быть полным)
 
-private _scriptPath = ((call ReBridge_getWorkspace) + ("\Scripts\RBuilder.reproj"));
+private _scriptPath = ((call ReBridge_getWorkspace) + ("\src\Scripts\RBuilder.reproj"));
 ["Script ReBridge path: %1",_scriptPath] call cprint;
 
 private _buildResult = [_scriptPath] call rescript_build;
@@ -101,6 +100,11 @@ if (_buildResult != "ok") exitWith {
 ["WorkspaceHelper"] call rescript_initScript;
 ["FileManager"] call rescript_initScript;
 ["RBuilder"] call rescript_initScript;
+
+#ifndef RBUILDER
+["RBuilder header not found"] call cprintErr;
+["RBuilder","exit",[-100404]] call rescript_callCommandVoid;
+#endif
 
 //todo remove this test critical exit
 ["RBuilder","exit",[-100500]] call rescript_callCommandVoid;

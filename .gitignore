@@ -8,3 +8,7 @@ VM/mpmissions/loader.vr.pbo
 VM/preload/**
 VM/src/**
 VM/cmp.exe
+VM/profile/**
+VM/logs/**
+VM/@server/ReEngineLogs/log.txt
+VM/config/config.vdf

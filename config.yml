@@ -3,8 +3,8 @@ version: 1
 # Project pathes, relative or absolute
 pathes:
   # original sources repo
-  sources: ./sources
-  vm_dir: ./vm
+  sources: ../Src
+  vm_dir: ./VM
 
 # this generating definelist with dependencies
 defines:
@@ -24,8 +24,8 @@ defines:
   ALLOW_CONSOLE:
 
 build:
-  include_headers:
-  exclude_headers:
+  include: Inventory\inventory.hpp;LightEngine\LightEngine.hpp;Interactions\interact.hpp;LightEngine\ScriptedEffects.hpp;LightEngine\ScriptedEffectConfigs.sqf;LightEngine\ScriptedConfigs\*.*
+  exclude: Editor;Scipts;.vscode
 
 # common runtime options
 runtime:
