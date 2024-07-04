@@ -11,17 +11,13 @@
                 "--noconfirm",
                 "--onefile",
                 "--console",
-                // "--icon",
-                // "../bosco_logo.ico",
                 "--version-file",
                 "${workspaceRoot}/vinf.txt",
                 "${workspaceRoot}/app.py"
             ],
             "options": {
-                "cwd": "${workspaceRoot}",
+                "cwd": "${workspaceRoot}"
             },
-           
-            //set as hidden
             "hide": true,
             "problemMatcher": []
         },
@@ -29,9 +25,9 @@
             "label": "Build app",
             "dependsOn": "Compiling",
             "type": "shell",
-            "command": "Move-Item -Path ${workspaceRoot}/dist/app.exe -Destination ${workspaceRoot}/dist/rb.exe -Force",
+            "command": "Move-Item -Path ${workspaceRoot}/dist/app.exe -Destination ${workspaceRoot}/rb.exe -Force",
             "options": {
-                "cwd": "${workspaceRoot}",
+                "cwd": "${workspaceRoot}"
             },
             "icon": {
                 "id": "symbol-package"

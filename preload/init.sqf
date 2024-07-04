@@ -15,9 +15,15 @@
 
 
 isRBuilder = true;
+RBuilder_list_defines = CMD__RBUILDER_DEFINE_LIST;
 
 //RBuilder_password - use as serverpassword
 server_password = RBuilder_password;
+
+if canSuspend exitWith {
+	diag_log ("[RB] RBuilder cannot run in sheduler environment");
+	call rbuilder_fatalShutdownServer;
+};
 
 diag_log ("[RB] Initialize cba module");
 call compile preprocessFileLineNumbers "preload\rbuilder_cba_functions.sqf";

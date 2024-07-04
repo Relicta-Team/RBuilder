@@ -11,17 +11,30 @@ defines:
   RELEASE:
   DEBUG:
 
+  # unit-test checks
   TEST_ALL:
-    needs: DEBUG
-  TEST_1:
+    needs: DEBUG,RELEASE
+  
+  TEST_VALUETYPES:
     enable_on: TEST_ALL
-  TEST_2:
+  TEST_STRINGS:
     enable_on: TEST_ALL
-    value: 123
-  TEST_COMMON:
-    enable_on: DEBUG
+  TEST_ARRAYS:
+    enable_on: TEST_ALL
+  TEST_STRUCTS:
+    enable_on: TEST_ALL
+  TEST_ALGORITHMS:
+    enable_on: TEST_ALL
+  
+  TEST_OOP_ALL:
+    enable_on: TEST_ALL
+  TEST_OOP_BASE:
+    enable_on: TEST_OOP_ALL
+  TEST_OOP_GAMEOBJECTS:
+    enable_on: TEST_OOP_ALL
 
-  ALLOW_CONSOLE:
+  TEST_DATABASE:
+    enable_on: TEST_ALL
 
 build:
   include: Inventory\inventory.hpp;LightEngine\LightEngine.hpp;Interactions\interact.hpp;LightEngine\ScriptedEffects.hpp;LightEngine\ScriptedEffectConfigs.sqf;LightEngine\ScriptedConfigs\*.*
@@ -29,7 +42,8 @@ build:
 
 # common runtime options
 runtime:
-  show_app_window: false
+  show_window: false
   preload_timeout: 3000 # in ms
-  delete_logs_on_start: true
+  cleanup_logs_on_start: true
+  rb_output: true
   

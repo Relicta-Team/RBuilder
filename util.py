@@ -1,5 +1,11 @@
 from Constants import ExitCodes
+import sys
 
 def appExit(ex:ExitCodes):
-    exit(ex.value)
+    if isExecutable():
+        raise SystemExit(ex.value)
+    else:
+        exit(ex.value)
     
+def isExecutable():
+    return getattr(sys, 'frozen', False)
