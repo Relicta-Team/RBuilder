@@ -11,10 +11,6 @@ from shutil import rmtree as dirRemove
 
 RBUILDER_DOWNLOAD_PATH = "https://relicta.ru/HostVM/cmp_2.16.exe"
 
-
-RBUILDER_LOADER_PATH = "loader"
-RBUILDER_PRELOADER_PATH = "preload"
-
 def pack(ctx:AppContext,fromDir,toFile):
     try:
         fromDir = os.path.abspath(fromDir)
@@ -48,6 +44,16 @@ def deployMain(ctx:AppContext):
     ctx.logger.info("Creating loader binary content")
 
     if not pack(ctx,pathLoader,destLoader): return False
+
+    srcMdl = RBUILDER_MDL_LOADER_PATH
+    destMdl = vmDir + "\\" + RBUILDER_MDL_LOADER_DEST_PATH
+    ctx.logger.info(f"Model loader src: {getAbsPath(srcMdl)}")
+    ctx.logger.info(f"Model loader dest: {getAbsPath(destMdl)}")
+    
+    if fileExists(destMdl):
+        ctx.logger.info(f"Removing previous model loader folder: {getAbsPath(destMdl)}")
+    if not pack(ctx,srcMdl,destMdl): return False
+
 
     ctx.logger.info("Creating preloader")
     pathPreloaderSrc = RBUILDER_PRELOADER_PATH

@@ -1,4 +1,6 @@
 from AppCtx import AppContext
+from RunnerServer import RunnerServer,Message
+from Builder.package import clearCache
 from Constants import *
 from os.path import abspath as getAbsPath
 from os.path import exists as fileExists
@@ -39,6 +41,9 @@ def RBuilderRun(ctx:AppContext):
     cleanup_logs_prestart = rtCfg['cleanup_logs_on_start']
     outputToRBuilder = rtCfg['rb_output']
 
+    if cleanup_logs_prestart:
+        if not clearCache(ctx): return ExitCodes.RBUILDER_RUN_FAILED
+
     ctx.logger.info("Preparing macros")
     macroDict = {} #pre test defines
     macroList = [] #finalized dict of defines
@@ -69,7 +74,7 @@ def RBuilderRun(ctx:AppContext):
     ctx.logger.info(f"Compiler: {getAbsPath(vmDir+"\\"+runner)}")
     ctx.logger.info(f"CLI: {cliArgs}")
 
-    preloadTimeout = 50
+    #preloadTimeout = 150
 
     preloaded = False
     readyConsole = False
@@ -77,10 +82,12 @@ def RBuilderRun(ctx:AppContext):
     stinf = subprocess.STARTUPINFO()
     stinf.hStdOutput = sys.stdout.fileno()
     stinf.hStdError = sys.stderr.fileno()
-    #stinf.wShowWindow = subprocess.SW_HIDE
+    if not show_window:
+        stinf.wShowWindow = subprocess.SW_HIDE
     
     #stinf.dwFlags = subprocess.STARTF_USESHOWWINDOW | subprocess.STARTF_USESTDHANDLES
-    
+    server = RunnerServer()
+    server.start()
     hndl = subprocess.Popen([runnerPath]+cliArgsList,
         stdout=sys.stdout.fileno(),
         #creationflags=subprocess.CREATE_NEW_CONSOLE,
@@ -114,6 +121,23 @@ def RBuilderRun(ctx:AppContext):
                 hndl.kill()
                 exitCode = ExitCodes.RBUILDER_RUN_LOADING_TIMEOUT
                 break
+        # else:
+        #     cmd = input("Input cmd:")
+        #     if cmd=="exit":
+        #         hndl.terminate()
+        #     else:
+        #         server.addCallback(cmd)
+        #endregion
+
+        #region handling messages from vm
+        if not server.queue.empty():
+            mes:Message = server.queue.get(timeout=0.1)
+            if mes.command=="_preload":
+                preloaded = True
+            elif mes.command=="interact_mode" and preloaded:
+                i = input("Input command:")
+                if i:
+                    server.addCallback(i)
         #endregion
 
         #region Hiding windows
@@ -140,6 +164,9 @@ def RBuilderRun(ctx:AppContext):
         #endregion
 
         time.sleep(0.01)
+    
+    server.stop()
+    server.thread.join()
 
     if log and not log.closed: 
         for line in read_and_get_info_from_rpt(log,True): 
@@ -196,15 +223,15 @@ def read_and_get_info_from_rpt(fhandle,doclose=False):
 
 
 def process_hinig_windows(hl):
-    if win32gui.GetWindowText(hl).startswith("Arma 3"):
+    if win32gui.GetWindowText(hl).startswith("Arma 3 Console"):
         win32gui.ShowWindow(hl,win32con.SW_HIDE)
         return True
-    if win32gui.GetWindowText(hl).startswith("KK"):
-        # get console stdout and redirect to my stdout
-        import win32api
-        import win32console
-        import sys
-        return False
+    # if win32gui.GetWindowText(hl).startswith("KK"):
+    #     # get console stdout and redirect to my stdout
+    #     import win32api
+    #     import win32console
+    #     import sys
+    #     return False
     return False
 
 def conv_cmp_exitCode(uintCode):

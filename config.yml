@@ -11,6 +11,8 @@ defines:
   RELEASE:
   DEBUG:
 
+  BASE_VM_SANDBOX:
+
   # unit-test checks
   TEST_ALL:
     needs: DEBUG,RELEASE
@@ -43,7 +45,7 @@ build:
 # common runtime options
 runtime:
   show_window: false
-  preload_timeout: 3000 # in ms
+  preload_timeout: 10000 # in ms
   cleanup_logs_on_start: true
   rb_output: true
   

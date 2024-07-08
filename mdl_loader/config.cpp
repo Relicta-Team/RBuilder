@@ -43,6 +43,12 @@ class CfgLocationTypes
 	};
 };
 
-#if __has_include("CfgVehicles.hpp")
-    #include "CfgVehicles.hpp"
-#endif
+class CfgVehicles {
+	class Man;
+	class B_Survivor_F : Man {
+		scope = 2;
+	};
+};
+
+
+#include "CfgVehicles.hpp"

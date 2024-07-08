@@ -23,6 +23,11 @@ if (ISNIL{call compile preprocessFileLineNumbers _fpp}) exitWith {
 	call rbuilder_fatalShutdownServer;
 };
 
+if (ISNIL{ReBridge_lastError} || {ReBridge_lastError!=""}) exitWith {
+	diag_log ("[RB] ReBridge last error: " + ReBridge_lastError);
+	call rbuilder_fatalShutdownServer;
+};
+
 //loading sources
 private _fp = "src\fn_init.sqf";
 private _ex = fileExists _fp;

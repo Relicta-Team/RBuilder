@@ -24,11 +24,12 @@ try:
 
     parser = getParser(ctx,cobj)
     #parser.print_help()
-    modes = [
-        ['run','-f','RELEASE','-f',"VALCOUNT","123"],
-        ['-init','build']
-    ]
-    args = parser.parse_args(modes[0])
+    # modes = [
+    #     ['run','-f','RELEASE','-f',"VALCOUNT","123"],
+    #     ['-init','build']
+    # ]
+    # args = parser.parse_args(modes[0])
+    args = parser.parse_args()
     ctx.setContextVar("args",args)
     
     if len(sys.argv) == 1:
@@ -42,7 +43,9 @@ try:
         if not deploy.deployMain(ctx): appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
 
     if args.actionType == 'build':
-        buildProcess(ctx)
+        c = buildProcess(ctx)
+        if not c:
+            appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
         appExit(ExitCodes.SUCCESS)
     elif args.actionType == 'run':
         appExit(RBuilderRun(ctx))

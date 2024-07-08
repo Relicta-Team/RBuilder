@@ -10,6 +10,11 @@ RBUILDER_PRELOADER_HEADER_FILENAME = "RBuilder.h"
 
 RBUILDER_SOURCE_FOLDERNAME = "src"
 
+RBUILDER_LOADER_PATH = "loader"
+RBUILDER_MDL_LOADER_PATH = "mdl_loader"
+RBUILDER_MDL_LOADER_DEST_PATH = "@server\\Addons\\mdl_loader.pbo"
+RBUILDER_PRELOADER_PATH = "preload"
+
 class ExitCodes(Enum):
     SUCCESS = 0
 

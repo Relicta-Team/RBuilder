@@ -94,9 +94,15 @@ private _scriptPath = ((call ReBridge_getWorkspace) + ("\src\Scripts\RBuilder.re
 ["Script ReBridge path: %1",_scriptPath] call cprint;
 
 private _buildResult = [_scriptPath] call rescript_build;
-if (_buildResult != "ok") exitWith {
+
+if (ReBridge_lastError != "") exitWith {
     ["ReBridge initialization error; Result: %1",_buildResult] call cprintErr;
     call rbuilder_fatalShutdownServer;
+};
+
+rbuilder_callback = {
+    params ["_msg"];
+    ["RBuilder: %1",_msg] call cprint;
 };
 
 ["Initialize scripts..."] call cprint;
@@ -112,9 +118,53 @@ if (_buildResult != "ok") exitWith {
 ["RBuilder","exit",[-100404]] call rescript_callCommandVoid;
 #endif
 
-//todo remove this test critical exit
-["RBuilder","exit",[-100500]] call rescript_callCommandVoid;
+/*
+    RBuilder API:
+        
+        Control server:
 
+    ["RBuilder","c_start",[],true] call rescript_callCommand - start server comm
+    ["RBuilder","c_stop",[],true] call rescript_callCommand - stop server comm
+
+    ------------------------------------------------------------
+
+        Commands:
+
+    ["RBuilder","wait",[10 * 1000]] call rescript_callCommandVoid - wait 10 seconds (lock main vm thread)
+    ["RBuilder","exit",[code]] call rescript_callCommandVoid - exit with code
+    ["RBuilder","c_send",[CMDNAME,ARGOPT]] call rescript_callCommandVoid - send command (arguments optional)
+    ["RBuilder","c_get",[],true] call rescript_callCommand - get command queue sended from server. returns string. stringEmpty if queue is empty
+
+*/
+
+_rSrv = ["RBuilder","c_start",[],true] call rescript_callCommand;
+if (_rSrv!="true") exitWith {
+    ["RBuilder","exit",[-101515]] call rescript_callCommandVoid;
+};
+
+["RBuilder","c_send",["_preload"]] call rescript_callCommandVoid;
+
+#ifdef BASE_VM_SANDBOX
+    ["Starting vm sandbox mode"] call cprint;
+    ["RBuilder","c_send",["interact_mode"]] call rescript_callCommandVoid;
+    for "_i" from 1 to 10 do {
+        _i = 1;
+        _dat = ["RBuilder","c_get",[],true] call rescript_callCommand;
+        if (_dat == "exit") exitWith {
+            ["RBuilder","exit",[0]] call rescript_callCommandVoid;
+        };
+        if (_dat!="") then {
+            ["RBuilder","c_send",["interact_mode"]] call rescript_callCommandVoid;
+            _ex = nil;
+            ISNIL{_ex = call compile _dat;0};
+            ["Executed: %1",_ex] call cprint;
+        };
+        ["RBuilder","wait",[0.5 * 1000]] call rescript_callCommandVoid;
+    };
+    
+
+
+#endif
 
 //always needed. outside this check nullval
 true
