@@ -15,7 +15,11 @@
 
 
 isRBuilder = true;
-RBuilder_list_defines = CMD__RBUILDER_DEFINE_LIST;
+RBuilder_map_defines = RBUILDER_DEFINE_LIST;
+RBuilder_PID = RBUILDER_PID;
+RBuilder_useOutput = "RBUILDER_OUTPUT" in RBuilder_map_defines;
+
+RBuilder_serverStarted = false;
 
 //RBuilder_password - use as serverpassword
 server_password = RBuilder_password;
@@ -85,6 +89,18 @@ call RBuilder_postInit; //preinit logfile
 //call compile preprocessFileLineNumbers "src\ReBridge\ReBridge_init.sqf";
 #include "..\src\ReBridge\ReBridge_init.sqf"
 
+//checks
+#ifndef RBUILDER
+if (true) exitWith {
+    ["This is not RBuilder more or macro not found. Fatal exit"] call cprintErr;
+    call rbuilder_fatalShutdownServer;
+};
+#endif
+if isNullVar(ReBridge_getWorkspace) exitWith {
+    ["ReBridge::getWorkspace() not found. Fatal exit"] call cprintErr;
+    call rbuilder_fatalShutdownServer;
+};
+
 // активируем компонет
 private _logReBridge = (call ReBridge_getWorkspace)+"\logs\ReEngineLogs";
 [] call ReBridge_start;
@@ -118,6 +134,38 @@ rbuilder_callback = {
 ["RBuilder","exit",[-100404]] call rescript_callCommandVoid;
 #endif
 
+
+RBuilder_destroyDefaultErrorHandler = {
+    RemoveMissionEventHandler ["ScriptError",RBuilder_scriptLoadingErrorHandle];
+};
+
+RBuilder_onServerLockedLoading = {
+    ["RBuilder server locked"] call cprintErr;
+    ["RBuilder","exit",[-666900]] call rescript_callCommandVoid;
+};
+
+//initialize script error handler base
+RBuilder_scriptLoadingErrorHandle = addMissionEventHandler ["ScriptError",{
+    params ["_errorMsg","_file","_line","_ofs","_cont","_stack"];
+    //safecall for 
+    call {
+        private _stackvars = if(count _stack == 0) then {"EMPTY"} else {
+            private _lastStack = _stack select (count _stack - 1);
+            _hmVars = _lastStack select 3;
+            (_hmVars toArray true) select 0
+        };
+        _errmes = format["Fatal error on loading code: %1; In %2 at %3 ->>>%4<<<; Stackvars: %5",_errorMsg,_file,_line,_cont select [_ofs,32],_stackvars joinString ", "];
+        diag_log text _errmes;
+        [_errmes] call cprintErr;
+        [_errmes] call cprint;
+        ["RBuilder","wait",[2 * 1000]] call rescript_callCommandVoid;
+    };
+    ["RBuilder","exit",[-666969]] call rescript_callCommandVoid;
+}];
+
+["RBuilder","init_console_redirect",[RBUILDER_PID]] call rescript_callCommandVoid;
+
+//["RBuilder","write_data",["================ WORKING RBUILDER ================="] ] call rescript_callCommandVoid;
 /*
     RBuilder API:
         
@@ -136,17 +184,18 @@ rbuilder_callback = {
     ["RBuilder","c_get",[],true] call rescript_callCommand - get command queue sended from server. returns string. stringEmpty if queue is empty
 
 */
-
 _rSrv = ["RBuilder","c_start",[],true] call rescript_callCommand;
 if (_rSrv!="true") exitWith {
     ["RBuilder","exit",[-101515]] call rescript_callCommandVoid;
 };
+RBuilder_serverStarted = true;
 
 ["RBuilder","c_send",["_preload"]] call rescript_callCommandVoid;
 
 #ifdef BASE_VM_SANDBOX
+    call RBuilder_destroyDefaultErrorHandler;
     ["Starting vm sandbox mode"] call cprint;
-    ["RBuilder","c_send",["interact_mode"]] call rescript_callCommandVoid;
+    ["RBuilder","c_send",["$interact_mode$"]] call rescript_callCommandVoid;
     for "_i" from 1 to 10 do {
         _i = 1;
         _dat = ["RBuilder","c_get",[],true] call rescript_callCommand;
@@ -154,7 +203,7 @@ if (_rSrv!="true") exitWith {
             ["RBuilder","exit",[0]] call rescript_callCommandVoid;
         };
         if (_dat!="") then {
-            ["RBuilder","c_send",["interact_mode"]] call rescript_callCommandVoid;
+            ["RBuilder","c_send",["$interact_mode$"]] call rescript_callCommandVoid;
             _ex = nil;
             ISNIL{_ex = call compile _dat;0};
             ["Executed: %1",_ex] call cprint;

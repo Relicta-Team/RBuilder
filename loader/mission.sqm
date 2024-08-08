@@ -23,22 +23,6 @@ sourceName="relicta";
 addons[]={};
 class AddonsMetaData
 {
-	class List
-	{
-		items=2;
-		class Item0
-		{
-			className="A3_Data_F_Curator";
-			name="Arma 3 Zeus Update - Main Configuration";
-			author="Bohemia Interactive";
-			url="https://www.arma3.com";
-		};
-		class Item1
-		{
-			className="rel_ui";
-			name="rel_ui";
-		};
-	};
 };
 randomSeed=11023265;
 class ScenarioData

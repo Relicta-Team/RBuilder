@@ -44,8 +44,8 @@ build:
 
 # common runtime options
 runtime:
-  show_window: false
-  preload_timeout: 10000 # in ms
+  show_window: true
+  preload_timeout: 60000 # in ms
   cleanup_logs_on_start: true
   rb_output: true
   

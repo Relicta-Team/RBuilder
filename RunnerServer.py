@@ -103,5 +103,8 @@ class RunnerServer:
             return
         message = message[2:]
         cmd,args = message.split(';',1)
+        if (cmd == "print"):
+            self.logger.info(args.replace('',";"))
+            return
         self.queue.put(Message(cmd,args))
         self.logger.debug("Received: {} with args: {}".format(cmd,args))

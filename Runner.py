@@ -21,12 +21,17 @@ def RBuilderRun(ctx:AppContext):
 
     rtCfg = ctx.cfg['runtime']
     vmDir = ctx.cfg['pathes']['vm_dir']
+    sourceDir = ctx.cfg['pathes']['sources']
     macroCfg = ctx.cfg['defines']
     cfgFile = "init.cfg"
     runner = "cmp.exe"
     runnerPath = vmDir+"\\"+runner
     # -noLogs for disable logs !warning! - nologs not throws modal windows
     argsRun = f"-debug -config={cfgFile} -serverMod=""@server"" -port=5678 -filePatching -autoInit -limitFPS=150 -noSplash"
+
+    #!abs path not work
+    #argsRun += f" -serverMod=\"{sourceDir}\""
+
     prof = f"""-profiles={getAbsPath(vmDir)}\\profile"""
 
     if not fileExists(runnerPath):
@@ -63,10 +68,17 @@ def RBuilderRun(ctx:AppContext):
 
     ctx.logger.info("Added {} define flags from CLI".format(len(macroList)))
 
-    if outputToRBuilder:
-        macroList.append(createPreprocessorDefineCLI("RBUILDER_OUTPUT"))
+    macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_PID.name,str(os.getpid())))
 
-    macroList.append(createPreprocessorDefineCLI("RBUILDER_DEFINE_LIST",f'createhashmapfromarray{[[m,v] for m,v in macroDict.items()]}'))
+    if outputToRBuilder:
+        macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_OUTPUT.name))
+
+    # ------
+    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_PID.name] = os.getpid()
+    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_OUTPUT.name] = outputToRBuilder
+    
+    mval__ = [f"[\"{m}\",\"{v}\"]" for m,v in macroDict.items()]
+    macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_DEFINE_LIST.name,f'createhashmapfromarray[{",".join(mval__)}]'))
 
     cliArgs = f'{argsRun} {prof} {' '.join(macroList)}'
     cliArgsList = cliArgs.split(' ') + [prof] + macroList
@@ -134,7 +146,7 @@ def RBuilderRun(ctx:AppContext):
             mes:Message = server.queue.get(timeout=0.1)
             if mes.command=="_preload":
                 preloaded = True
-            elif mes.command=="interact_mode" and preloaded:
+            elif mes.command=="$interact_mode$" and preloaded:
                 i = input("Input command:")
                 if i:
                     server.addCallback(i)
@@ -143,7 +155,7 @@ def RBuilderRun(ctx:AppContext):
         #region Hiding windows
         hwnds = get_hwnds_for_pid(hndl.pid)
         for hwnd in hwnds:
-            if not readyConsole and process_hinig_windows(hwnd):
+            if not readyConsole and process_hinig_windows(hwnd,show_window):
                 readyConsole = True
             if win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) & win32con.WS_EX_DLGMODALFRAME:
                 
@@ -202,10 +214,10 @@ def get_opened_rpt_log(pid):
 def open_rpt_log(pid):
     rpath = get_opened_rpt_log(pid)
     if rpath is None: return None
-    return open(rpath,'r')
+    return open(rpath,'r',errors='ignore')
 
 def read_and_get_info_from_rpt(fhandle,doclose=False):
-    if fhandle is None: return []
+    if fhandle is None: return ["NULL-HANDLE-RPT-LOG"]
     lret = []
     startReading = False
     for line in fhandle.readlines():
@@ -222,7 +234,8 @@ def read_and_get_info_from_rpt(fhandle,doclose=False):
     return lret
 
 
-def process_hinig_windows(hl):
+def process_hinig_windows(hl,forceShow):
+    if forceShow: return True
     if win32gui.GetWindowText(hl).startswith("Arma 3 Console"):
         win32gui.ShowWindow(hl,win32con.SW_HIDE)
         return True

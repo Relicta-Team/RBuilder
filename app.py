@@ -28,7 +28,7 @@ try:
     #     ['run','-f','RELEASE','-f',"VALCOUNT","123"],
     #     ['-init','build']
     # ]
-    # args = parser.parse_args(modes[0])
+    #args = parser.parse_args(modes[0])
     args = parser.parse_args()
     ctx.setContextVar("args",args)
     
@@ -50,7 +50,10 @@ try:
     elif args.actionType == 'run':
         appExit(RBuilderRun(ctx))
     
-
+except KeyboardInterrupt:
+    ctx.logger.warning("Pressed keyboard interrupt...")
+    appExit(ExitCodes.USER_INTERRUPT)
 except Exception as e:
-    print(e)
+    #print(e)
+    ctx.logger.fatal(f"Unhandled exception: {e}; {e.with_traceback()}")
     appExit(ExitCodes.UNKNOWN_FATAL_ERROR)

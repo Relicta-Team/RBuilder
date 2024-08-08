@@ -9,7 +9,6 @@ rbuilder_fatalShutdownServer = {
 	}
 };
 
-
 //initialize preload module
 private _fpp = "preload\init.sqf";
 private _fppex = fileExists _fpp;

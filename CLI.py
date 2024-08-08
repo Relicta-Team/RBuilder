@@ -35,7 +35,7 @@ def getParser(ctx:AppContext,config=None):
     p.add_argument('-src',help='Source files for compiler. Default: %(default)s',default=pathes.get('sources',"..\\src"),metavar='FILE')
 
     p = sub.add_parser('run',help='Run application')
-    p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines")
+    p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
     #p._add_container_actions(cflags._container)
     #(p._add_action(act) for act in cflags._actions)
 

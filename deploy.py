@@ -4,21 +4,23 @@ import urllib.request
 from AppCtx import AppContext
 import requests
 from packlib.a3lib import *
+import zipfile
 from os.path import exists as fileExists
 from os.path import abspath as getAbsPath
 from shutil import copytree as dirCopy
 from shutil import rmtree as dirRemove
 
-RBUILDER_DOWNLOAD_PATH = "https://relicta.ru/HostVM/cmp_2.16.exe"
+RBUILDER_DOWNLOAD_PATH = "https://relicta.ru/RBuilder_compiler/cmp_2.16.exe"
+RBUILDER_LIBS_DOWNLOAD_PATH = "https://relicta.ru/RBuilder_compiler/addons_v1.zip"
 
 def pack(ctx:AppContext,fromDir,toFile):
     try:
         fromDir = os.path.abspath(fromDir)
         toFile = os.path.abspath(toFile)
 
-        ctx.logger.info("Packing...")
-        ctx.logger.info(f"Src: {fromDir}")
-        ctx.logger.info(f"Dest: {toFile}")
+        ctx.logger.info(f"Packing {os.path.basename(toFile)}")
+        ctx.logger.info(f"    Src: {fromDir}")
+        ctx.logger.info(f"    Dest: {toFile}")
         if not os.path.exists(fromDir):
             raise FileNotFoundError(f"Folder {fromDir} not found")
         if os.path.exists(toFile):
@@ -26,7 +28,7 @@ def pack(ctx:AppContext,fromDir,toFile):
         
         pbo(create_pbo=True,pbo_path=toFile,files=[fromDir],custom_saver=True)
         
-        ctx.logger.info("Created binary content: {}".format(toFile))
+        ctx.logger.info("Created binary: {}".format(toFile))
         
         return True
     except Exception as e:
@@ -35,15 +37,23 @@ def pack(ctx:AppContext,fromDir,toFile):
 
 def deployMain(ctx:AppContext):
     ctx.setCurrentLogger("INIT")
-    
+    # download base compiler content
     vmDir = ctx.cfg['pathes']['vm_dir']
+    ctx.setCurrentLogger("INIT-COMPILER")
     if not downloadCompiler(ctx): return False
+    ctx.setCurrentLogger("INIT-ADDONS")
+    if not downloadLibs(ctx): return False
 
+    # ====== MAIN LOADER (mission) =======
+    ctx.setCurrentLogger("INIT-LOADER")
     pathLoader = RBUILDER_LOADER_PATH
     destLoader = vmDir + "\\mpmissions\\" + RBUILDER_LOADER_FILENAME
     ctx.logger.info("Creating loader binary content")
-
     if not pack(ctx,pathLoader,destLoader): return False
+    
+    # ========= MODELINFO =======
+    ctx.setCurrentLogger("INIT-MODELINFO")
+    if not createModelConfigTemplate(ctx): return False
 
     srcMdl = RBUILDER_MDL_LOADER_PATH
     destMdl = vmDir + "\\" + RBUILDER_MDL_LOADER_DEST_PATH
@@ -54,7 +64,9 @@ def deployMain(ctx:AppContext):
         ctx.logger.info(f"Removing previous model loader folder: {getAbsPath(destMdl)}")
     if not pack(ctx,srcMdl,destMdl): return False
 
+    # ========== PRELOADER ==========
 
+    ctx.setCurrentLogger("INIT-PRELOADER")
     ctx.logger.info("Creating preloader")
     pathPreloaderSrc = RBUILDER_PRELOADER_PATH
     pathPreloaderDest = vmDir + f"\\{RBUILDER_PRELOADER_FOLDERNAME}"
@@ -67,8 +79,8 @@ def deployMain(ctx:AppContext):
     dirCopy(pathPreloaderSrc,pathPreloaderDest)
     ctx.logger.info(f"Preloader created: {getAbsPath(pathPreloaderDest)}")
 
+    ctx.setCurrentLogger("INIT-HEADERS")
     generateRbuilderHeader(ctx)
-    
 
     return True
 
@@ -81,6 +93,8 @@ def generateRbuilderHeader(ctx:AppContext):
         rv = f"#ifdef CMD__{k}\n\t#define {k}"
         if v is not None and v.get('value') is not None:
             rv += f" {v.get('value')}"
+        else:
+            rv += f" CMD__{k}"
         rv += "\n#endif"
         return rv
     
@@ -90,6 +104,9 @@ def generateRbuilderHeader(ctx:AppContext):
     
     for k,v in ctx.cfg['defines'].items():
         defList.append(_createConditionalDefine(k,v))
+
+    for x in RBUILDER_PREDEFINED_MACROS._member_names_:
+        defList.append(_createConditionalDefine(x))
 
     defStr = "\n".join(defList)
     with open(preloaderHeader,'w') as f:
@@ -107,7 +124,7 @@ def downloadCompiler(ctx:AppContext):
 
         rbuilder_path = os.path.abspath(rbuilder_path)
 
-        if os.path.exists(rbuilder_path):
+        if fileExists(rbuilder_path):
             ctx.logger.info(f"Removing {rbuilder_path}")
             os.remove(rbuilder_path)
 
@@ -134,3 +151,158 @@ def downloadCompiler(ctx:AppContext):
     except Exception as e:
         ctx.logger.error(f"Error initializing compiler: ({e.__class__.__name__}) {e}")
         return False
+    
+def downloadLibs(ctx:AppContext):
+    try:
+        ctx.logger.info("Initialize addons")
+        
+        vm_path_dir = ctx.cfg['pathes']['vm_dir']
+        addons_path = vm_path_dir + "\\addons"
+        vm_path_dir = os.path.abspath(vm_path_dir)
+        addons_path = os.path.abspath(addons_path)
+
+        temp_addons_archive = vm_path_dir + "\\addons.zip"
+
+        if os.path.isdir(addons_path) and fileExists(addons_path):
+            ctx.logger.info(f"Removing {addons_path}")
+            dirRemove(addons_path)
+            
+        if fileExists(temp_addons_archive):
+            ctx.logger.info(f"Removing {temp_addons_archive}")
+            os.remove(temp_addons_archive)
+
+        ctx.logger.info(f"Downloading {RBUILDER_LIBS_DOWNLOAD_PATH}")
+        
+        with open(temp_addons_archive, 'wb') as f:
+            respone = requests.get(RBUILDER_LIBS_DOWNLOAD_PATH, stream=True)
+            total = respone.headers.get("Content-Length")
+            if total is None:
+                raise Exception("No content length header")
+            else:
+                dl = 0
+                total = int(total)
+                for data in respone.iter_content(chunk_size=4096 * 1000):
+                    dl += len(data)
+                    f.write(data)
+                    done = int(100 * dl / total)
+                    ctx.logger.info('Downloading {}%'.format(done))
+                    #ctx.logger.info("\r[{}{}]".format('█' * done, '.' * (50 - done)))
+        
+        ctx.logger.info("Addons downloaded")
+        ctx.logger.info("Unzipping...")
+        
+        arch = zipfile.ZipFile(temp_addons_archive, 'r')
+        arch.extractall(vm_path_dir)
+        arch.close()
+
+        if fileExists(temp_addons_archive):
+            ctx.logger.info(f"Removing {temp_addons_archive}")
+            os.remove(temp_addons_archive)
+
+        ctx.logger.info("Addons unzipped")
+
+        return True
+    except Exception as e:
+        ctx.logger.error(f"Error initializing addons: ({e.__class__.__name__}) {e}")
+        return False
+    return True
+
+
+def createModelConfigTemplate(ctx:AppContext):
+    src = ctx.args.src
+    m2cpath = os.path.join(src,"M2C.sqf")
+    
+    ctx.logger.info(f"Starting scan model configs")
+    
+    if not fileExists(m2cpath):
+        ctx.logger.error("M2C.sqf not found")
+        return False
+    cfgList = []
+    
+    tempModel = "core\\default\\default.p3d"
+    savePath = f".\\{RBUILDER_MDL_LOADER_PATH}\\CfgVehicles.hpp" #ctx.cfg['pathes']['vm_dir'] + 
+    
+    #region Possible cfgvehicles types
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/access
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/All
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Logic
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/AllVehicles
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Land
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/LandVehicle
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Car
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Motorcycle
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Bicycle
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Tank
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/APC
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Man
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Animal
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Air
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Helicopter
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Plane
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Ship
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/SmallShip
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/BigShip
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Truck
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ParachuteBase
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/LaserTarget
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/NVTarget
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ArtilleryTarget
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ArtilleryTargetW
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ArtilleryTargetE
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/SuppressTarget
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/PaperCar
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FireSectorTarget
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Static
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Rope
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Fortress
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Building
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/NonStrategic
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/HeliH
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/AirportBase
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Strategic
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FlagCarrierCore
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Land_VASICore
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/Thing
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ThingEffect
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ThingEffectLight
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/ThingEffectFeather
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FxExploArmor1
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FxExploArmor2
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FxExploArmor3
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FxExploArmor4
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/FxCartridge
+# RBuilder(cprint): cfg:bin\config.bin/CfgVehicles/WindAnomaly
+    #endregion
+
+    cfgTemplate = "class CLASSNAME : PBASE_CLASS {};"
+
+    baseHeader = " \
+    class Static;\n \
+    class predef_cls : Static { scope = 2; model='"+tempModel+"';destrType = \"DestructNo\";mass = 1;weight = 1; displayName=\"pbaser\"; author = \"test\";};\n \
+    class PBASE_CLASS : predef_cls {};\n \
+    "
+
+    unicalSet = set()
+    with open(m2cpath,"r") as f:
+        for line in f.readlines():
+            if line.startswith("['"):
+                cfgList.append(line[2:line.find('\',\'')])
+
+    ctx.logger.info("Finded {} configs".format(len(cfgList)))
+    if len(cfgList) > 0:
+        ctx.logger.info("Creating model config template")
+        try:
+            with open(savePath,"w+") as fhd:
+                fhd.write(baseHeader)
+                for lc in cfgList:
+                    if lc in unicalSet:
+                        ctx.logger.error("Duplicate config: " + lc)
+                    unicalSet.add(lc)
+                    fhd.write(cfgTemplate.replace("CLASSNAME",lc))
+        except Exception as ex:
+            ctx.logger.error(f"Ex for save: {ex.__class__.__name__}: {ex}")
+            return False
+        ctx.logger.info("Model config template created to " + savePath)
+
+
+    return True

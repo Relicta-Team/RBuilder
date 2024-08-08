@@ -5,27 +5,31 @@
 
 class CfgPatches
 {
-    class RELICT
+    class mdl_loader
     {
-        name = "TEST";
-        author = "123aa";
+        name = "mdl_loader";
+        author = "mdl_loader";
+		units[] = {};
+        weapons[] = {};
+        requiredAddons[] = {};
         authorUrl = "";
 		version = "1.0";
+		requiredVersion = 1.0;
 	};
 
 };
 
-class CfgFunctions
-{
-    class RELICT 
-		{
-		class Bootstrap 
-			{
-				file = "\src";
-				class init {postInit  = 1;};
-			};
-		};
-};
+// class CfgFunctions
+// {
+//     class mdl_loader 
+// 		{
+// 		class initer 
+// 			{
+// 				file = "\mdl_loader";
+// 				class init {postInit  = 1;};
+// 			};
+// 		};
+// };
 
 //own location for hostvm works
 class CfgLocationTypes
@@ -43,12 +47,8 @@ class CfgLocationTypes
 	};
 };
 
+
 class CfgVehicles {
-	class Man;
-	class B_Survivor_F : Man {
-		scope = 2;
-	};
+
+	#include "CfgVehicles.hpp"
 };
-
-
-#include "CfgVehicles.hpp"
