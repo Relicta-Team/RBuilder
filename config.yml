@@ -18,7 +18,7 @@ defines:
     needs: DEBUG,RELEASE
   TEST_FRAMEWORK_BASE:
     enable_on: TEST_ALL
-  TEST_VALUETYPES:
+  TEST_MATH:
     enable_on: TEST_ALL
   TEST_STRINGS:
     enable_on: TEST_ALL
