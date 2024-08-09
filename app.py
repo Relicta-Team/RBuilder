@@ -25,10 +25,11 @@ try:
     parser = getParser(ctx,cobj)
     #parser.print_help()
     # modes = [
-    #     ['run','-f','RELEASE','-f',"VALCOUNT","123"],
-    #     ['-init','build']
+    #     ['run','-f','DEBUG','-f',"test_all","123"],
+    #     ['-init','build'],
+    #     ['b','-link']
     # ]
-    #args = parser.parse_args(modes[0])
+    # args = parser.parse_args(modes[0])
     args = parser.parse_args()
     ctx.setContextVar("args",args)
     
@@ -42,12 +43,12 @@ try:
         cfg.initCfg()
         if not deploy.deployMain(ctx): appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
 
-    if args.actionType == 'build':
+    if args.actionType in ('build','b','compile','make'):
         c = buildProcess(ctx)
         if not c:
             appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
         appExit(ExitCodes.SUCCESS)
-    elif args.actionType == 'run':
+    elif args.actionType in ('run','r','start','exec'):
         appExit(RBuilderRun(ctx))
     
 except KeyboardInterrupt:
@@ -55,5 +56,5 @@ except KeyboardInterrupt:
     appExit(ExitCodes.USER_INTERRUPT)
 except Exception as e:
     #print(e)
-    ctx.logger.fatal(f"Unhandled exception: {e}; {e.with_traceback()}")
+    ctx.logger.fatal(f"Unhandled exception: {e}; {e.with_traceback(e.__traceback__)}")
     appExit(ExitCodes.UNKNOWN_FATAL_ERROR)

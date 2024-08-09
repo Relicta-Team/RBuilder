@@ -92,7 +92,7 @@ class RunnerServer:
                 self.client_socket.close()
                 self.setClientConnected(False)
         except OSError:
-            print("server closed")
+            #print("server closed")
             pass
         except Exception as e:
             print(f"UNKNOWN SERVER ERROR <{e.__class__.__name__}>: {e}")

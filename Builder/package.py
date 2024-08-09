@@ -59,8 +59,28 @@ def createPackage(ctx:AppContext):
 
 def buildProcess(ctx:AppContext):
     ctx.setCurrentLogger("BUILD")
+    vmDir = ctx.cfg['pathes']['vm_dir']
+    dest = vmDir + f"\\{RBUILDER_SOURCE_FOLDERNAME}"
+    src = ctx.args.src
+    #remove prevbuild
+    if fileExists(dest):
+        if os.path.islink(dest):
+            ctx.logger.info(f"Removing previous simlink source: {getAbsPath(dest)}")
+            os.unlink(dest)
+        elif os.path.isdir(dest):
+            ctx.logger.info(f"Removing previous source folder: {getAbsPath(dest)}")
+            dirRemove(dest)
+        else:
+            ctx.logger.error(f"Can't remove previous unknown source type: {getAbsPath(dest)}")
+            return False
+
     
-    createPackage(ctx)
+    if ctx.args.symlink:
+        ctx.logger.info(f"Creating symlink: {getAbsPath(dest)}")
+        os.symlink(src,dest,True)
+    else:
+        ctx.logger.info(f"Generaing package: {getAbsPath(src)}")
+        createPackage(ctx)
 
     ctx.logger.info("Build done!")
     ctx.setCurrentLogger()

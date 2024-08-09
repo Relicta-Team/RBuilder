@@ -134,6 +134,13 @@ rbuilder_callback = {
 ["RBuilder","exit",[-100404]] call rescript_callCommandVoid;
 #endif
 
+RBuilder_exit = {
+    params ["_exitCode",["_msg",""]];
+    if (_msg != "") then {
+        ["RBuilder exited with reason: %1",_msg] call cprint;
+    };
+    ["RBuilder","exit",[_exitCode]] call rescript_callCommandVoid;
+};
 
 RBuilder_destroyDefaultErrorHandler = {
     RemoveMissionEventHandler ["ScriptError",RBuilder_scriptLoadingErrorHandle];
@@ -154,7 +161,7 @@ RBuilder_scriptLoadingErrorHandle = addMissionEventHandler ["ScriptError",{
             _hmVars = _lastStack select 3;
             (_hmVars toArray true) select 0
         };
-        _errmes = format["Fatal error on loading code: %1; In %2 at %3 ->>>%4<<<; Stackvars: %5",_errorMsg,_file,_line,_cont select [_ofs,32],_stackvars joinString ", "];
+        _errmes = format["Fatal error: %1 (file %2 at %3) ->>>%5 ERROR#>%4<<<; Stackvars: %6",_errorMsg,ifcheck(_file=="","ANON",_file),_line,_cont select [_ofs,32],_cont select [_ofs-10,10],_stackvars joinString ", "];
         diag_log text _errmes;
         [_errmes] call cprintErr;
         [_errmes] call cprint;

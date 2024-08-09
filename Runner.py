@@ -45,6 +45,7 @@ def RBuilderRun(ctx:AppContext):
     show_window = rtCfg['show_window']
     cleanup_logs_prestart = rtCfg['cleanup_logs_on_start']
     outputToRBuilder = rtCfg['rb_output']
+    showRpt = ctx.args.show_rpt
 
     if cleanup_logs_prestart:
         if not clearCache(ctx): return ExitCodes.RBUILDER_RUN_FAILED
@@ -108,21 +109,23 @@ def RBuilderRun(ctx:AppContext):
     
     proc = psutil.Process(hndl.pid)
     
-    log = open_rpt_log(hndl.pid)
+    log = None
+    if showRpt:
+        log = open_rpt_log(hndl.pid)
     startTime = time.time()
     exitCode = ExitCodes.SUCCESS
-    if log == None:
+    if log == None and showRpt:
         ctx.logger.error("Can't open log file")
 
     while hndl.poll() is None:
-        if log==None:
+        if log==None and showRpt:
             log = open_rpt_log(hndl.pid)
         
         #region Preloader work
         if not preloaded:
             if time.time() - startTime > preloadTimeout:
                 
-                for line in read_and_get_info_from_rpt(log,True): 
+                for line in read_and_get_info_from_rpt(log,True,showRpt): 
                     ctx.logger.info(line)
 
                 ctx.logger.error("Preloader timeout")
@@ -159,8 +162,9 @@ def RBuilderRun(ctx:AppContext):
                 readyConsole = True
             if win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) & win32con.WS_EX_DLGMODALFRAME:
                 
-                for line in read_and_get_info_from_rpt(log,True): 
+                for line in read_and_get_info_from_rpt(log,True,showRpt): 
                     ctx.logger.info(line)
+                if log and log != None:
                     log.close()
 
                 lstwid = []
@@ -181,7 +185,7 @@ def RBuilderRun(ctx:AppContext):
     server.thread.join()
 
     if log and not log.closed: 
-        for line in read_and_get_info_from_rpt(log,True): 
+        for line in read_and_get_info_from_rpt(log,True,showRpt): 
                 ctx.logger.info(line)
 
     if hndl.returncode:
@@ -216,7 +220,8 @@ def open_rpt_log(pid):
     if rpath is None: return None
     return open(rpath,'r',errors='ignore')
 
-def read_and_get_info_from_rpt(fhandle,doclose=False):
+def read_and_get_info_from_rpt(fhandle,doclose=False,showRpt=True):
+    if not showRpt: return []
     if fhandle is None: return ["NULL-HANDLE-RPT-LOG"]
     lret = []
     startReading = False

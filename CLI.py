@@ -30,12 +30,23 @@ def getParser(ctx:AppContext,config=None):
     #grp.add_argument('-debug',action='store_true',help='Debug mode')
     grp.add_argument('-log',help='Enable logging')
     
-    sub = parser.add_subparsers(title='Process type',help='subparser helptext',dest='actionType',metavar="PROCESS_TYPE")
-    p = sub.add_parser('build',help='Build application')
-    p.add_argument('-src',help='Source files for compiler. Default: %(default)s',default=pathes.get('sources',"..\\src"),metavar='FILE')
+    sub = parser.add_subparsers(title='Process type',help='RBuilder process type',dest='actionType',metavar="PROCESS_TYPE")
+    # ----------- build -----------
+    p = sub.add_parser(name='build',aliases=['b','compile','make'],help='Build/compile application')
+    p.add_argument('-src','-s',help='Source files for compiler. Default: %(default)s',dest='src',action='store_const',default=pathes.get('sources',"..\\src"),metavar='FILE')
+    p.add_argument('-link','-l',help='Use source as simlink',action='store_true',dest='symlink')
+    grp = p.add_argument_group("Compiler options")
+    grp.add_argument('-iml',help='Debugger intermediate binary')
+    grp.add_argument('-validate','-v',help='Validate preprocessor',action='store_true',dest='validate')
+    grp = grp.add_mutually_exclusive_group(required=False)
+    grp.add_argument('-o0',help='No optimization',action='store_false',dest='optimize')
+    grp.add_argument('-o1',help='Optimization level 1',action='store_true',dest='optimize')
+    grp.add_argument('-o2',help='Optimization level 2',action='store_true',dest='optimize')
 
-    p = sub.add_parser('run',help='Run application')
+    # ----------- run -----------
+    p = sub.add_parser('run',aliases=['r','start','exec'],help='Run application')
     p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
+    p.add_argument('-rptshow','-rpt',help="Show rpt content on rbuilder exit",type=bool,default=runtime['show_rpt'],dest="show_rpt")
     #p._add_container_actions(cflags._container)
     #(p._add_action(act) for act in cflags._actions)
 
