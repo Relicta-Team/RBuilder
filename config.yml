@@ -16,7 +16,8 @@ defines:
   # unit-test checks
   TEST_ALL:
     needs: DEBUG,RELEASE
-  
+  TEST_FRAMEWORK_BASE:
+    enable_on: TEST_ALL
   TEST_VALUETYPES:
     enable_on: TEST_ALL
   TEST_STRINGS:
@@ -48,4 +49,5 @@ runtime:
   preload_timeout: 60000 # in ms
   cleanup_logs_on_start: true
   rb_output: true
+  show_rpt: false
   
