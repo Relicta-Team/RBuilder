@@ -19,6 +19,7 @@ class RBUILDER_PREDEFINED_MACROS(Enum):
     RBUILDER_PID = "Process id of current process",
     RBUILDER_OUTPUT = "Output to RBuilder",
     RBUILDER_DEFINE_LIST = "All CLI arguments passed from RBuilder to VM"
+    RBUILDER_AUTO_RELOAD = "Autoreload rbuilder on executed vm commands"
 
 
 class ExitCodes(Enum):

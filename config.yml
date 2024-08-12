@@ -50,4 +50,5 @@ runtime:
   cleanup_logs_on_start: true
   rb_output: true
   show_rpt: false
+  auto_reload: false # if true rbuilder will be reload question on RBuilder_exit called
   

@@ -19,6 +19,8 @@ RBuilder_map_defines = RBUILDER_DEFINE_LIST;
 RBuilder_PID = RBUILDER_PID;
 RBuilder_useOutput = "RBUILDER_OUTPUT" in RBuilder_map_defines;
 
+RBuilder_autoReload = "RBUILDER_AUTO_RELOAD" in RBuilder_map_defines;
+
 RBuilder_serverStarted = false;
 
 //RBuilder_password - use as serverpassword
@@ -139,7 +141,36 @@ RBuilder_exit = {
     if (_msg != "") then {
         ["RBuilder exited with reason: %1",_msg] call cprint;
     };
-    ["RBuilder","exit",[_exitCode]] call rescript_callCommandVoid;
+    if (!RBuilder_autoReload) then {
+        ["RBuilder","exit",[_exitCode]] call rescript_callCommandVoid;
+    } else {
+        ["RBuilder autoreload request. Wating commands..."] call cprint;
+        ["RBuilder","c_send",["print","$auto_reload_request$"]] call rescript_callCommandVoid;
+        if isNull(RBuilder_handle_autoreloadEvent) then {
+            RBuilder_handle_autoreloadEvent = [_exitCode] SPAWN {
+                params ["_exCode"];
+                while {true} do {
+                    _data = ["RBuilder","c_get",[],true] call rescript_callCommand;
+                    
+                    if (_data == "exit") exitWith {
+                        ["RBuilder","exit",[_exCode]] call rescript_callCommandVoid;
+                    };
+                    if (_data != "") exitWith {
+                        _r = if isNull(cm_serverCommand) then {
+                            rbuilder_password serverCommand "#restart";
+                        } else {
+                            "#restart" call cm_serverCommand;
+                        };
+                        if (!_r) then {
+                            ["Fatal error on restart"] call cprintErr;
+                            ["RBuilder","exit",[-6116]] call rescript_callCommandVoid;
+                        };
+                    };
+                    uisleep 0.5;
+                };
+            };
+        };
+    };
 };
 
 RBuilder_destroyDefaultErrorHandler = {

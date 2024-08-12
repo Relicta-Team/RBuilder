@@ -104,7 +104,17 @@ class RunnerServer:
         message = message[2:]
         cmd,args = message.split(';',1)
         if (cmd == "print"):
-            self.logger.info(args.replace('',";"))
+            _astr = args.replace('',";")
+            if (_astr == "$auto_reload_request$"):
+                self.logger.info("Auto reload request")
+                v = input("Type exit to exit from VM. Otherwise press any key for reload")
+                if (v == "exit"):
+                    self.addCallback(v)
+                else:
+                    self.addCallback(v)
+                return
+            self.logger.info(_astr)
             return
+        
         self.queue.put(Message(cmd,args))
         self.logger.debug("Received: {} with args: {}".format(cmd,args))

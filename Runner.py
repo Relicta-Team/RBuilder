@@ -45,6 +45,7 @@ def RBuilderRun(ctx:AppContext):
     show_window = rtCfg['show_window']
     cleanup_logs_prestart = rtCfg['cleanup_logs_on_start']
     outputToRBuilder = rtCfg['rb_output']
+    auto_reload = ctx.args.auto_reload
     showRpt = ctx.args.show_rpt
 
     if cleanup_logs_prestart:
@@ -73,6 +74,10 @@ def RBuilderRun(ctx:AppContext):
 
     if outputToRBuilder:
         macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_OUTPUT.name))
+
+    if auto_reload:
+        macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_AUTO_RELOAD.name))
+        macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_AUTO_RELOAD.name] = auto_reload
 
     # ------
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_PID.name] = os.getpid()

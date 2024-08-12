@@ -47,6 +47,7 @@ def getParser(ctx:AppContext,config=None):
     p = sub.add_parser('run',aliases=['r','start','exec'],help='Run application')
     p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
     p.add_argument('-rptshow','-rpt',help="Show rpt content on rbuilder exit",type=bool,default=runtime['show_rpt'],dest="show_rpt")
+    p.add_argument("-autoreload",'-ar','-r',help="Reload question on vm executed",default=runtime['auto_reload'],dest="auto_reload",action='store_true')
     #p._add_container_actions(cflags._container)
     #(p._add_action(act) for act in cflags._actions)
 

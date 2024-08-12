@@ -25,7 +25,7 @@ try:
     parser = getParser(ctx,cobj)
     #parser.print_help()
     # modes = [
-    #     ['run','-f','DEBUG','-f',"test_all","123"],
+    #     ['run','-f','DEBUG','-f',"TEST_ALGORITHMS","-ar"],
     #     ['-init','build'],
     #     ['b','-link']
     # ]
