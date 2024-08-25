@@ -37,7 +37,7 @@ def getParser(ctx:AppContext,config=None):
     p = sub.add_parser(name='build',aliases=['b','compile','make'],help='Build/compile application')
     p.add_argument('-src','-s',help='Source files for compiler. Default: %(default)s',dest='src',default=pathes.get('sources',"..\\src"),metavar='FILE')
     p.add_argument('-link','-l',help='Use source as simlink',action='store_true',dest='symlink')
-    p.add_argument('-db',help='Create new database',dest='create_db',action='store_true')
+    
     grp = p.add_argument_group("Compiler options")
     grp.add_argument('-iml',help='Debugger intermediate binary')
     grp.add_argument('-validate','-v',help='Validate preprocessor',action='store_true',dest='validate')
@@ -48,9 +48,10 @@ def getParser(ctx:AppContext,config=None):
 
     # ----------- run -----------
     p = sub.add_parser('run',aliases=['r','start','exec'],help='Run application')
-    p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
+    p.add_argument('-db',help='Create new database',dest='create_db',action='store_true')
     p.add_argument('-rptshow','-rpt',help="Show rpt content on rbuilder exit",type=bool,default=runtime['show_rpt'],dest="show_rpt")
     p.add_argument("-autoreload",'-ar','-r',help="Reload question on vm executed",default=runtime['auto_reload'],dest="auto_reload",action='store_true')
+    p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
     #p._add_container_actions(cflags._container)
     #(p._add_action(act) for act in cflags._actions)
 

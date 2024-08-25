@@ -4,6 +4,7 @@ from Builder.package import clearCache
 from Constants import *
 from os.path import abspath as getAbsPath
 from os.path import exists as fileExists
+from shutil import copyfile as fileCopy
 import os
 import sys
 import subprocess
@@ -28,6 +29,16 @@ def RBuilderRun(ctx:AppContext):
     runner = "cmp.exe"
     runnerPath = vmDir+"\\"+runner
     isSymlinkSources = os.path.islink(getAbsPath(vmDir+"\\src"))
+    
+    db_dest = getAbsPath(vmDir + "\\" + RBUILDER_DB_PATH_DEST)
+    if ctx.args.create_db or not fileExists(db_dest):
+        ctx.logger.info("Creating database...")
+        db_src = getAbsPath(RBUILDER_DB_PATH_SRC)
+        ctx.logger.info(f"DB source: {db_src}")
+        ctx.logger.info(f"DB dest: {db_dest}")
+
+        fileCopy(db_src,db_dest)
+    
     # -noLogs for disable logs !warning! - nologs not throws modal windows
     argsRun = f"-debug -config={cfgFile} -serverMod=""@server"" -port=5678 -filePatching -autoInit -limitFPS=150 -noSplash"
 
