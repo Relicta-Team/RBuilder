@@ -19,3 +19,5 @@ VM/mpmissions/__cur_mp.VR/src/ReBridge/rebridge_log.txt
 VM/src
 mdl_loader/CfgVehicles.hpp
 app.spec
+vinf_gen.txt
+RBuilder.spec

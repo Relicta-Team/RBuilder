@@ -8,8 +8,8 @@ import deploy
 from Builder.package import buildProcess
 from Runner import RBuilderRun
 from AppCtx import AppContext
+from APP_VERSION import APP_VERSION
 
-APP_VERSION = "1.0.0"
 
 try:
     logging.basicConfig(level=logging.INFO,format='[%(name)s] %(levelname)s - %(message)s')
@@ -33,6 +33,12 @@ try:
     #args = parser.parse_args(['r','-d','TEST_IO','-d','DEBUG'])
     args = parser.parse_args()
     ctx.setContextVar("args",args)
+
+    if args.testapp:
+        import os
+        with open(os.getenv('GITHUB_OUTPUT'), "a") as f:
+            f.write("RBUILDER_TESTAPP=OK")
+        appExit(ExitCodes.SUCCESS)
 
     if args.verbose:
         ctx.setContextVar("verbose",True)

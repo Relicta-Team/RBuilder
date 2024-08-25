@@ -32,6 +32,8 @@ def getParser(ctx:AppContext,config=None):
     grp.add_argument("-verbose",help='Enable verbose logging',action='store_true',default=False,dest='verbose')
     grp.add_argument('-sdk',help="Change ReSDK path. This used for ReNode lib compiler",default=pathes.get('resdk_dir',".\\..\\"),dest='ReSDK_dir')
     
+    grp.add_argument("-testapp",help="Test work executable",action='store_true',default=False,dest='testapp')
+
     sub = parser.add_subparsers(title='Process type',help='RBuilder process type',dest='actionType',metavar="PROCESS_TYPE")
     # ----------- build -----------
     p = sub.add_parser(name='build',aliases=['b','compile','make'],help='Build/compile application')
@@ -48,10 +50,10 @@ def getParser(ctx:AppContext,config=None):
 
     # ----------- run -----------
     p = sub.add_parser('run',aliases=['r','start','exec'],help='Run application')
-    p.add_argument('-db',help='Create new database',dest='create_db',action='store_true')
+    p.add_argument('-dbreload',help='Create new database',dest='create_db',action='store_true')
     p.add_argument('-rptshow','-rpt',help="Show rpt content on rbuilder exit",type=bool,default=runtime['show_rpt'],dest="show_rpt")
     p.add_argument("-autoreload",'-ar','-r',help="Reload question on vm executed",default=runtime['auto_reload'],dest="auto_reload",action='store_true')
-    p.add_argument('-def','-f',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
+    p.add_argument('-def','-f','-d',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
     #p._add_container_actions(cflags._container)
     #(p._add_action(act) for act in cflags._actions)
 
