@@ -28,13 +28,16 @@ def getParser(ctx:AppContext,config=None):
     
     grp.add_argument('-init',action='store_true',help='Initialize config')
     #grp.add_argument('-debug',action='store_true',help='Debug mode')
-    grp.add_argument('-log',help='Enable logging')
+    grp.add_argument('-log',help='Enable logging to file',dest='logToFile',metavar='FILE')
+    grp.add_argument("-verbose",help='Enable verbose logging',action='store_true',default=False,dest='verbose')
+    grp.add_argument('-sdk',help="Change ReSDK path. This used for ReNode lib compiler",default=pathes.get('resdk_dir',".\\..\\"),dest='ReSDK_dir')
     
     sub = parser.add_subparsers(title='Process type',help='RBuilder process type',dest='actionType',metavar="PROCESS_TYPE")
     # ----------- build -----------
     p = sub.add_parser(name='build',aliases=['b','compile','make'],help='Build/compile application')
-    p.add_argument('-src','-s',help='Source files for compiler. Default: %(default)s',dest='src',action='store_const',default=pathes.get('sources',"..\\src"),metavar='FILE')
+    p.add_argument('-src','-s',help='Source files for compiler. Default: %(default)s',dest='src',default=pathes.get('sources',"..\\src"),metavar='FILE')
     p.add_argument('-link','-l',help='Use source as simlink',action='store_true',dest='symlink')
+    p.add_argument('-db',help='Create new database',dest='create_db',action='store_true')
     grp = p.add_argument_group("Compiler options")
     grp.add_argument('-iml',help='Debugger intermediate binary')
     grp.add_argument('-validate','-v',help='Validate preprocessor',action='store_true',dest='validate')

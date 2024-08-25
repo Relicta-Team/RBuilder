@@ -5,6 +5,7 @@ import atexit
 import time
 import logging
 from queue import Queue
+from AppCtx import AppContext
 
 class Message:
     def __init__(self, cmd, args):
@@ -18,13 +19,17 @@ class ServerThread(threading.Thread):
         return super().run()
 
 class RunnerServer:
-    def __init__(self, ip='127.0.0.1', port=9897):
+    def __init__(self,ctx:AppContext=None, ip='127.0.0.1', port=9897):
         self.queue = Queue()
         
         self.callbackQueue = Queue()
 
         self.logger = logging.getLogger("SRV")
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG if ctx.verbose else logging.INFO)
+        
+        if ctx.args.logToFile:
+            self.logger.addHandler(ctx.fileHandler)
+        
         self.server_ip = ip
         self.server_port = port
         self.server_socket = None

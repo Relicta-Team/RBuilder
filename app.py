@@ -29,16 +29,23 @@ try:
     #     ['-init','build'],
     #     ['b','-link']
     # ]
-    # args = parser.parse_args(modes[0])
+    # args = parser.parse_args(modes[3])
+    #args = parser.parse_args(['r','-d','TEST_IO','-d','DEBUG'])
     args = parser.parse_args()
     ctx.setContextVar("args",args)
+
+    if args.verbose:
+        ctx.setContextVar("verbose",True)
+    
+    if args.logToFile:
+        _mainLog.addHandler(ctx.fileHandler)
     
     if len(sys.argv) == 1:
         parser.print_help()
         appExit(ExitCodes.NO_ARGUMENTS_PROVIDED)
 
     paramDict = vars(args)
-
+    
     if args.init:
         cfg.initCfg()
         if not deploy.deployMain(ctx): appExit(ExitCodes.UNKNOWN_FATAL_ERROR)

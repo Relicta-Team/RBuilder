@@ -21,11 +21,13 @@ def RBuilderRun(ctx:AppContext):
 
     rtCfg = ctx.cfg['runtime']
     vmDir = ctx.cfg['pathes']['vm_dir']
+    ReSDK_dir = ctx.args.ReSDK_dir
     sourceDir = ctx.cfg['pathes']['sources']
     macroCfg = ctx.cfg['defines']
     cfgFile = "init.cfg"
     runner = "cmp.exe"
     runnerPath = vmDir+"\\"+runner
+    isSymlinkSources = os.path.islink(getAbsPath(vmDir+"\\src"))
     # -noLogs for disable logs !warning! - nologs not throws modal windows
     argsRun = f"-debug -config={cfgFile} -serverMod=""@server"" -port=5678 -filePatching -autoInit -limitFPS=150 -noSplash"
 
@@ -82,6 +84,8 @@ def RBuilderRun(ctx:AppContext):
     # ------
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_PID.name] = os.getpid()
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_OUTPUT.name] = outputToRBuilder
+    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_IS_SYMLINK_SOURCES.name] = isSymlinkSources
+    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_RESDK_PATH.name] = getAbsPath(ReSDK_dir)
     
     mval__ = [f"[\"{m}\",\"{v}\"]" for m,v in macroDict.items()]
     macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_DEFINE_LIST.name,f'createhashmapfromarray[{",".join(mval__)}]'))
@@ -91,6 +95,8 @@ def RBuilderRun(ctx:AppContext):
 
     ctx.logger.info(f"Compiler: {getAbsPath(vmDir+"\\"+runner)}")
     ctx.logger.info(f"CLI: {cliArgs}")
+    ctx.logger.info(f'Source is symlinked: {isSymlinkSources}')
+    
 
     #preloadTimeout = 150
 
@@ -104,7 +110,7 @@ def RBuilderRun(ctx:AppContext):
         stinf.wShowWindow = subprocess.SW_HIDE
     
     #stinf.dwFlags = subprocess.STARTF_USESHOWWINDOW | subprocess.STARTF_USESTDHANDLES
-    server = RunnerServer()
+    server = RunnerServer(ctx=ctx)
     server.start()
     hndl = subprocess.Popen([runnerPath]+cliArgsList,
         stdout=sys.stdout.fileno(),

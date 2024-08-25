@@ -82,6 +82,17 @@ def buildProcess(ctx:AppContext):
         ctx.logger.info(f"Generaing package: {getAbsPath(src)}")
         createPackage(ctx)
 
+    vmDir =  ctx.cfg['pathes']['vm_dir']
+    db_dest = getAbsPath(vmDir + "\\" + RBUILDER_DB_PATH_DEST)
+    if ctx.args.create_db or not fileExists(db_dest):
+        ctx.logger.info("Creating database...")
+        db_src = getAbsPath(RBUILDER_DB_PATH_SRC)
+        ctx.logger.info(f"DB source: {db_src}")
+        ctx.logger.info(f"DB dest: {db_dest}")
+
+        fileCopy(db_src,db_dest)
+    
+
     ctx.logger.info("Build done!")
     ctx.setCurrentLogger()
     return True

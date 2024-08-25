@@ -15,11 +15,16 @@ RBUILDER_MDL_LOADER_PATH = "mdl_loader"
 RBUILDER_MDL_LOADER_DEST_PATH = "@server\\Addons\\mdl_loader.pbo"
 RBUILDER_PRELOADER_PATH = "preload"
 
+RBUILDER_DB_PATH_SRC = "DB\\GameMain.db"
+RBUILDER_DB_PATH_DEST = "@server\\db\\GameMain.db"
+
 class RBUILDER_PREDEFINED_MACROS(Enum):
     RBUILDER_PID = "Process id of current process",
     RBUILDER_OUTPUT = "Output to RBuilder",
     RBUILDER_DEFINE_LIST = "All CLI arguments passed from RBuilder to VM"
     RBUILDER_AUTO_RELOAD = "Autoreload rbuilder on executed vm commands"
+    RBUILDER_IS_SYMLINK_SOURCES = "Source code running from simlink directory"
+    RBUILDER_RESDK_PATH = "Path to ReSDK directory"
 
 
 class ExitCodes(Enum):

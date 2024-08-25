@@ -5,13 +5,18 @@ pathes:
   # original sources repo
   sources: ../Src
   vm_dir: ./VM
+  resdk_dir: ./../
 
 # this generating definelist with dependencies
 defines:
   RELEASE:
   DEBUG:
 
+  # enable interact mode with application
   BASE_VM_SANDBOX:
+
+  # enable renode bindings generator
+  GENERATE_RENODE_BINDINGS:
 
   # unit-test checks
   TEST_ALL:
@@ -28,7 +33,9 @@ defines:
     enable_on: TEST_ALL
   TEST_ALGORITHMS:
     enable_on: TEST_ALL
-  
+  TEST_IO:
+    enable_on: TEST_ALL
+
   TEST_OOP_ALL:
     enable_on: TEST_ALL
   TEST_OOP_BASE:
@@ -45,7 +52,7 @@ build:
 
 # common runtime options
 runtime:
-  show_window: true
+  show_window: false
   preload_timeout: 60000 # in ms
   cleanup_logs_on_start: true
   rb_output: true
