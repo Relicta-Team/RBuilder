@@ -17,35 +17,35 @@ jobs:
     name: Build
     runs-on: windows-latest
     steps:
-      - name: Setup Python
-        uses: actions/setup-python@v3.1.4
-      - uses: actions/checkout@v3      
-      # ----------------------- build exe -----------------------
-      - name: Compile
-        id: rbuilder_compiler
-        run: |
-          python -V
-          python compile_app.py
-      # ----------------------- tests and build dependencies -----------------------
-      - name: Test executable
-        id: renode_test_exe
-        run: |
-          echo "TODO implement test executable"
-      # ----------------------- upload/commit compiled -----------------------
-      - uses: actions/upload-artifact@v4
-        name: Upload ReNode artifacts
-        with:
-          name: ReNode ${{ steps.rbuilder_compiler.outputs.RBUILDER_FULL_VERSION }}
-          path: |
-            ${{ env.renode_artifacts_sources_path }}
-      - name: Update RBuilder application
-        uses: test-room-7/action-update-file@v1
-        with:
-          committer-name: RBuider update
-          file-path: |
-           rb.exe
-          commit-msg: RBuilder ${{ steps.rbuilder_compiler.outputs.RBUILDER_FULL_VERSION }}
-          github-token: ${{secrets.TOKEN}}
+      # - name: Setup Python
+      #   uses: actions/setup-python@v3.1.4
+      # - uses: actions/checkout@v3      
+      # # ----------------------- build exe -----------------------
+      # - name: Compile
+      #   id: rbuilder_compiler
+      #   run: |
+      #     python -V
+      #     python compile_app.py
+      # # ----------------------- tests and build dependencies -----------------------
+      # - name: Test executable
+      #   id: renode_test_exe
+      #   run: |
+      #     echo "TODO implement test executable"
+      # # ----------------------- upload/commit compiled -----------------------
+      # - uses: actions/upload-artifact@v4
+      #   name: Upload ReNode artifacts
+      #   with:
+      #     name: ReNode ${{ steps.rbuilder_compiler.outputs.RBUILDER_FULL_VERSION }}
+      #     path: |
+      #       ${{ env.renode_artifacts_sources_path }}
+      # - name: Update RBuilder application
+      #   uses: test-room-7/action-update-file@v1
+      #   with:
+      #     committer-name: RBuider update
+      #     file-path: |
+      #      rb.exe
+      #     commit-msg: RBuilder ${{ steps.rbuilder_compiler.outputs.RBUILDER_FULL_VERSION }}
+      #     github-token: ${{secrets.TOKEN}}
       - name: Deploy to ReSDK
         env:
           GH_TOKEN: ${{secrets.TOKEN}}
