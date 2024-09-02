@@ -15,6 +15,9 @@ from AppCtx import AppContext
 """
 
 def getParser(ctx:AppContext,config=None):
+    if config == None:
+        raise FileNotFoundError("config.yml not found or not loaded")
+    
     pathes = config.get('pathes',{})
     runtime = config.get('runtime',{})
     defines = config.get('defines',{})
