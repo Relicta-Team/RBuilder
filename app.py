@@ -36,8 +36,12 @@ try:
 
     if args.testapp:
         import os
-        with open(os.getenv('GITHUB_OUTPUT'), "a") as f:
-            f.write("RBUILDER_TESTAPP=OK")
+        envvar = os.getenv('GITHUB_OUTPUT')
+        if envvar != None:
+            with open(envvar, "a") as f:
+                f.write("RBUILDER_TESTAPP=OK")
+        else:
+            print("TESTAPP: OK")
         appExit(ExitCodes.SUCCESS)
 
     if args.verbose:
