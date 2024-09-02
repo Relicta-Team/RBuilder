@@ -65,9 +65,14 @@ try:
         appExit(RBuilderRun(ctx))
     
 except KeyboardInterrupt:
-    ctx.logger.warning("Pressed keyboard interrupt...")
+    if ctx.logger:
+        ctx.logger.warning("Pressed keyboard interrupt...")
+    else:
+        print("Pressed keyboard interrupt...")
     appExit(ExitCodes.USER_INTERRUPT)
 except Exception as e:
-    #print(e)
-    ctx.logger.fatal(f"Unhandled exception: {e}; {e.with_traceback(e.__traceback__)}")
+    if ctx.logger:
+        ctx.logger.fatal(f"Unhandled exception: {e}; {e.with_traceback(e.__traceback__)}")
+    else:
+        print(f"Unhandled exception: {e}; {e.with_traceback(e.__traceback__)}")
     appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
