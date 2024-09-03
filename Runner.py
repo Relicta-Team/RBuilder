@@ -51,7 +51,8 @@ def RBuilderRun(ctx:AppContext):
         ctx.logger.error(f"Compiler not found: {getAbsPath(runnerPath)}. Please use init command")
         return ExitCodes.RBUILDER_RUN_FAILED
     if not fileExists(vmDir+"\\"+cfgFile):
-        ctx.logger.error(f"Config not found: {getAbsPath(vmDir+"\\"+cfgFile)}. Please reinstall RBuilder")
+        pathCfg = getAbsPath(vmDir+'\\'+cfgFile)
+        ctx.logger.error(f"Config not found: {pathCfg}. Please reinstall RBuilder")
         return ExitCodes.RBUILDER_RUN_FAILED
 
     preloadTimeout = rtCfg['preload_timeout']/1000 #ms to sec
@@ -101,10 +102,11 @@ def RBuilderRun(ctx:AppContext):
     mval__ = [f"[\"{m}\",\"{v}\"]" for m,v in macroDict.items()]
     macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_DEFINE_LIST.name,f'createhashmapfromarray[{",".join(mval__)}]'))
 
-    cliArgs = f'{argsRun} {prof} {' '.join(macroList)}'
+    cliArgs = f'{argsRun} {prof} {" ".join(macroList)}'
     cliArgsList = cliArgs.split(' ') + [prof] + macroList
 
-    ctx.logger.info(f"Compiler: {getAbsPath(vmDir+"\\"+runner)}")
+    cmpPath = getAbsPath(vmDir+"\\"+runner)
+    ctx.logger.info(f"Compiler: {cmpPath}")
     ctx.logger.info(f"CLI: {cliArgs}")
     ctx.logger.info(f'Source is symlinked: {isSymlinkSources}')
     
@@ -320,7 +322,8 @@ def process_defines(ctx:AppContext,macroDict,macroCfg,outlist):
                         found = True
                         break
             if not found:
-                ctx.logger.warning(f"Macro {mdef} require: {",".join(needs_list)}")
+                nlstStr = ",".join(needs_list)
+                ctx.logger.warning(f"Macro {mdef} require: {nlstStr}")
                 hasFoundErr = True
                 continue
         outlist.append(createPreprocessorDefineCLI(mdef,mval))
