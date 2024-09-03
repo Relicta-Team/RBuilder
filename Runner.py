@@ -36,7 +36,8 @@ def RBuilderRun(ctx:AppContext):
         db_src = getAbsPath(RBUILDER_DB_PATH_SRC)
         ctx.logger.info(f"DB source: {db_src}")
         ctx.logger.info(f"DB dest: {db_dest}")
-
+        
+        os.makedirs(os.path.dirname(db_dest),exist_ok=True)
         fileCopy(db_src,db_dest)
     
     # -noLogs for disable logs !warning! - nologs not throws modal windows
