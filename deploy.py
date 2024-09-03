@@ -32,7 +32,7 @@ def pack(ctx:AppContext,fromDir,toFile):
         
         return True
     except Exception as e:
-        ctx.logger.error(f"Error initializing compiler: ({e.__class__.__name__}) {e}")
+        ctx.logger.error(f"Error on pack: ({e.__class__.__name__}) {e}")
         return False
 
 def deployMain(ctx:AppContext):

@@ -76,7 +76,7 @@ except KeyboardInterrupt:
     appExit(ExitCodes.USER_INTERRUPT)
 except Exception as e:
     if ctx.logger:
-        ctx.logger.fatal(f"Unhandled exception: {e}; {e.with_traceback(e.__traceback__)}")
+        ctx.logger.fatal(f"Unhandled exception: {e}; TB: {e.with_traceback(e.__traceback__)}")
     else:
-        print(f"Unhandled exception: {e}; {e.with_traceback(e.__traceback__)}")
+        print(f"Unhandled exception: {e}; TB: {e.with_traceback(e.__traceback__)}")
     appExit(ExitCodes.UNKNOWN_FATAL_ERROR)
