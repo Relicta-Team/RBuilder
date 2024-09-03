@@ -829,6 +829,9 @@ def pbo(pbo_path, include="*", exclude="", create_pbo=False,
                     files.extend([os.path.join(f, fn) for fn in os.listdir(f)])
             for k, v in header_extension:
                 p.header_extension[k.encode()] = v.encode()
+            if custom_saver:
+                os.makedirs(pbo_path, exist_ok=True)
+
             with open(pbo_path if custom_saver else tmpfile[1], 'wb') as t:
                 p.export(t)
         if not custom_saver:
