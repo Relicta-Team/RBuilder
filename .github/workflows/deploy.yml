@@ -10,7 +10,6 @@ on:
 env:
   RBUILDER_DEPLOY_TOKEN: ${{secrets.TOKEN}}
   SHA_FULL: ${{ github.sha }}
-  GH_TOKEN: ${{ secrets.token }}
 
 jobs:
 
@@ -48,8 +47,8 @@ jobs:
       #     commit-msg: RBuilder ${{ steps.rbuilder_compiler.outputs.RBUILDER_FULL_VERSION }}
       #     github-token: ${{secrets.TOKEN}}
       - name: Deploy to ReSDK
+        run: |
+          gh workflow run --repo RelictaTeam/ReSDK_A3.vr DeployRBuilder --ref main
         env:
           GH_TOKEN: ${{secrets.TOKEN}}
-        run: |
-          gh workflow run --repo RelictaTeam/ReSDK_A3.vr DeployRBuilder
 
