@@ -50,4 +50,4 @@ jobs:
       #     github-token: ${{secrets.TOKEN}}
       - name: Deploy to ReSDK
         run: |
-          gh workflow run --repo RelictaTeam/ReSDK_A3.vr DeployRBuilder
+          gh workflow run --repo Relicta-Team/ReSDK_A3.vr DeployRBuilder
