@@ -16,6 +16,8 @@ jobs:
   deploy:
     name: Build
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{secrets.TOKEN}}
     steps:
       # - name: Setup Python
       #   uses: actions/setup-python@v3.1.4
@@ -48,7 +50,4 @@ jobs:
       #     github-token: ${{secrets.TOKEN}}
       - name: Deploy to ReSDK
         run: |
-          gh workflow run --repo RelictaTeam/ReSDK_A3.vr DeployRBuilder --ref main
-        env:
-          GH_TOKEN: ${{secrets.TOKEN}}
-
+          gh workflow run --repo RelictaTeam/ReSDK_A3.vr DeployRBuilder
