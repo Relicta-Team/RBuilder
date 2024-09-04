@@ -36,7 +36,7 @@ def RBuilderRun(ctx:AppContext):
         db_src = getAbsPath(RBUILDER_DB_PATH_SRC)
         ctx.logger.info(f"DB source: {db_src}")
         ctx.logger.info(f"DB dest: {db_dest}")
-        
+
         os.makedirs(os.path.dirname(db_dest),exist_ok=True)
         fileCopy(db_src,db_dest)
     
@@ -46,7 +46,7 @@ def RBuilderRun(ctx:AppContext):
     #!abs path not work
     #argsRun += f" -serverMod=\"{sourceDir}\""
 
-    prof = f"""-profiles={getAbsPath(vmDir)}\\profile"""
+    prof = f"\"-profiles={getAbsPath(vmDir)}\\profile\""
 
     if not fileExists(runnerPath):
         ctx.logger.error(f"Compiler not found: {getAbsPath(runnerPath)}. Please use init command")
