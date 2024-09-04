@@ -1,6 +1,8 @@
 import os
 import yaml
-CFG_FILEPATH = "config.yml"
+import sys
+baseFolder = os.path.dirname(sys.argv[0])
+CFG_FILEPATH = os.path.join(baseFolder,"config.yml")
 
 def initCfg():
     pass
