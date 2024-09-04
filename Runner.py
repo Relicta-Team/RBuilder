@@ -17,6 +17,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
+import win32clipboard
 from ctypes import *
 
 # Create a custom key binding
@@ -26,6 +27,15 @@ bindings = KeyBindings()
 def _(event):
     # Submit the prompt when Shift+Enter is pressed
     event.app.exit(result=event.app.current_buffer.text)
+
+#copypaste event
+@bindings.add('c-v')
+def paste(event):
+    win32clipboard.OpenClipboard()
+    clipboard = win32clipboard.GetClipboardData()
+    win32clipboard.CloseClipboard()
+    event.app.current_buffer.insert_text(clipboard.replace('\t',' '*4))
+
 session = PromptSession('',completer=None,key_bindings=bindings)
 
 def _multiline_input(prompt):
@@ -119,7 +129,13 @@ def RBuilderRun(ctx:AppContext):
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_IS_SYMLINK_SOURCES.name] = isSymlinkSources
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_RESDK_PATH.name] = f'{getAbsPath(ReSDK_dir)}'
     
-    mval__ = [f'[\"{m}\",\'{v}\']' for m,v in macroDict.items()]
+    mval__ = []
+    for m,v in macroDict.items():
+        if not isinstance(v,str):
+            mval__.append(f'[\"{m}\",{v}]')
+        else:
+            mval__.append(f'[\"{m}\",\'{v}\']')
+    #mval__ = [f'[\"{m}\",\'{v}\']' for m,v in macroDict.items()]
     macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_DEFINE_LIST.name,f'createhashmapfromarray[{",".join(mval__)}]',True))
 
     cliArgs = f'{argsRun} {prof} {" ".join(macroList)}'
