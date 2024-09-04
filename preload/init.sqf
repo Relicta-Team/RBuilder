@@ -13,7 +13,6 @@
 
 #include <..\src\host\engine.hpp>
 
-
 isRBuilder = true;
 RBuilder_map_defines = RBUILDER_DEFINE_LIST;
 RBuilder_PID = RBUILDER_PID;
@@ -241,10 +240,10 @@ RBuilder_serverStarted = true;
             ["RBuilder","exit",[0]] call rescript_callCommandVoid;
         };
         if (_dat!="") then {
-            ["RBuilder","c_send",["$interact_mode$"]] call rescript_callCommandVoid;
             _ex = nil;
             ISNIL{_ex = call compile _dat;0};
-            ["Executed: %1",_ex] call cprint;
+            //["Executed: %1",_ex] call cprint;
+            ["RBuilder","c_send",["$interact_mode$",_ex]] call rescript_callCommandVoid;
         };
         ["RBuilder","wait",[0.5 * 1000]] call rescript_callCommandVoid;
     };

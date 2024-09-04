@@ -41,12 +41,14 @@ def RBuilderRun(ctx:AppContext):
         fileCopy(db_src,db_dest)
     
     # -noLogs for disable logs !warning! - nologs not throws modal windows
-    argsRun = f"-debug -config={cfgFile} -serverMod=""@server"" -port=5678 -filePatching -autoInit -limitFPS=150 -noSplash"
+    srvModAbs = "@server" #getAbsPath(vmDir+"\\@server")
+    srvCli = f'""-serverMod={srvModAbs}""'
+    argsRun = f"-debug -config={cfgFile} -port=5678 -filePatching -autoInit -limitFPS=150 -noSplash"
 
     #!abs path not work
     #argsRun += f" -serverMod=\"{sourceDir}\""
 
-    prof = f"\"-profiles={getAbsPath(vmDir)}\\profile\""
+    prof = f"""-profiles={getAbsPath(vmDir)}\\profile"""
 
     if not fileExists(runnerPath):
         ctx.logger.error(f"Compiler not found: {getAbsPath(runnerPath)}. Please use init command")
@@ -98,17 +100,20 @@ def RBuilderRun(ctx:AppContext):
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_PID.name] = os.getpid()
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_OUTPUT.name] = outputToRBuilder
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_IS_SYMLINK_SOURCES.name] = isSymlinkSources
-    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_RESDK_PATH.name] = getAbsPath(ReSDK_dir)
+    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_RESDK_PATH.name] = f'{getAbsPath(ReSDK_dir)}'
     
-    mval__ = [f"[\"{m}\",\"{v}\"]" for m,v in macroDict.items()]
-    macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_DEFINE_LIST.name,f'createhashmapfromarray[{",".join(mval__)}]'))
+    mval__ = [f'[\"{m}\",\'{v}\']' for m,v in macroDict.items()]
+    macroList.append(createPreprocessorDefineCLI(RBUILDER_PREDEFINED_MACROS.RBUILDER_DEFINE_LIST.name,f'createhashmapfromarray[{",".join(mval__)}]',True))
 
     cliArgs = f'{argsRun} {prof} {" ".join(macroList)}'
-    cliArgsList = cliArgs.split(' ') + [prof] + macroList
+    cliArgsList = argsRun.split(' ') + [srvCli,prof] + macroList
 
     cmpPath = getAbsPath(vmDir+"\\"+runner)
     ctx.logger.info(f"Compiler: {cmpPath}")
-    ctx.logger.info(f"CLI: {cliArgs}")
+    ctx.logger.info(f"Args: {'+'.join(cliArgsList)}")
+    for cmd in cliArgsList:
+        ctx.logger.info(f"\tFlag: {cmd}")
+    #ctx.logger.info(f"CLI: {cliArgs}")
     ctx.logger.info(f'Source is symlinked: {isSymlinkSources}')
     
 
@@ -126,14 +131,16 @@ def RBuilderRun(ctx:AppContext):
     #stinf.dwFlags = subprocess.STARTF_USESHOWWINDOW | subprocess.STARTF_USESTDHANDLES
     server = RunnerServer(ctx=ctx)
     server.start()
+    
     hndl = subprocess.Popen([runnerPath]+cliArgsList,
         stdout=sys.stdout.fileno(),
         #creationflags=subprocess.CREATE_NEW_CONSOLE,
-        startupinfo=stinf
+        startupinfo=stinf,
+        encoding='utf-8',
         )
     
-    proc = psutil.Process(hndl.pid)
-    
+    proc = psutil.Process(hndl.pid)    
+
     log = None
     if showRpt:
         log = open_rpt_log(hndl.pid)
@@ -141,6 +148,8 @@ def RBuilderRun(ctx:AppContext):
     exitCode = ExitCodes.SUCCESS
     if log == None and showRpt:
         ctx.logger.error("Can't open log file")
+
+    showInteractModeMessage = False
 
     while hndl.poll() is None:
         if log==None and showRpt:
@@ -175,9 +184,17 @@ def RBuilderRun(ctx:AppContext):
             if mes.command=="_preload":
                 preloaded = True
             elif mes.command=="$interact_mode$" and preloaded:
-                i = input("Input command:")
+                if not showInteractModeMessage:
+                    print("\n\n\n\tType 'exit' for quit from interact mode...\n\n")
+                    showInteractModeMessage = True
+                if mes.args and mes.args != "any":
+                    print(f"Return: {mes.args}")
+                i = input("Command:")
+                
                 if i:
                     server.addCallback(i)
+                else:
+                    server.addCallback("null")
         #endregion
 
         #region Hiding windows
@@ -207,7 +224,7 @@ def RBuilderRun(ctx:AppContext):
         time.sleep(0.01)
     
     server.stop()
-    server.thread.join()
+    server.thread.join(10)
 
     if log and not log.closed: 
         for line in read_and_get_info_from_rpt(log,True,showRpt): 
@@ -330,7 +347,10 @@ def process_defines(ctx:AppContext,macroDict,macroCfg,outlist):
         outlist.append(createPreprocessorDefineCLI(mdef,mval))
     return hasFoundErr
 
-def createPreprocessorDefineCLI(name,arg=''):
+def createPreprocessorDefineCLI(name,arg='',useEscaping = False):
+    if useEscaping:
+        #arg = arg.replace('"','""')
+        return f"-preprocDefine=\"{name}={arg}\""
     return f"-preprocDefine={name}{'='+arg if arg else ''}"
 
 if __name__ == "__main__":

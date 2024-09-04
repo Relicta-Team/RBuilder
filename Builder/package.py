@@ -76,11 +76,14 @@ def buildProcess(ctx:AppContext):
 
     
     if ctx.args.symlink:
+        srcAbs = getAbsPath(src)
+        destAbs = getAbsPath(dest)
+        ctx.logger.info(f"Symlink src: {getAbsPath(src)}")
         ctx.logger.info(f"Creating symlink: {getAbsPath(dest)}")
-        os.symlink(src,dest,True)
+        os.symlink(srcAbs,destAbs,True)
     else:
         ctx.logger.info(f"Generaing package: {getAbsPath(src)}")
-        createPackage(ctx)    
+        createPackage(ctx)
 
     ctx.logger.info("Build done!")
     ctx.setCurrentLogger()

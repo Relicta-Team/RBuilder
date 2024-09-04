@@ -3,6 +3,7 @@ import socket
 import threading
 import atexit
 import time
+import psutil
 import logging
 from queue import Queue
 from AppCtx import AppContext
@@ -29,7 +30,7 @@ class RunnerServer:
         
         if ctx.args.logToFile:
             self.logger.addHandler(ctx.fileHandler)
-        
+
         self.server_ip = ip
         self.server_port = port
         self.server_socket = None
