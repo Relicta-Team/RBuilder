@@ -10,6 +10,7 @@ on:
 env:
   RBUILDER_DEPLOY_TOKEN: ${{secrets.TOKEN}}
   SHA_FULL: ${{ github.sha }}
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
 
