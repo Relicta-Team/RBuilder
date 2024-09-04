@@ -13,7 +13,24 @@ import win32gui
 import win32process
 import win32con
 import psutil
+from prompt_toolkit import PromptSession
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
 from ctypes import *
+
+# Create a custom key binding
+bindings = KeyBindings()
+
+@bindings.add(Keys.Tab)
+def _(event):
+    # Submit the prompt when Shift+Enter is pressed
+    event.app.exit(result=event.app.current_buffer.text)
+session = PromptSession('',completer=None,key_bindings=bindings)
+
+def _multiline_input(prompt):
+    line = session.prompt(prompt, multiline=True)
+    return line
 
 def RBuilderRun(ctx:AppContext):
     ctx.setCurrentLogger("RB")
@@ -177,7 +194,7 @@ def RBuilderRun(ctx:AppContext):
         #     else:
         #         server.addCallback(cmd)
         #endregion
-
+        
         #region handling messages from vm
         if not server.queue.empty():
             mes:Message = server.queue.get(timeout=0.1)
@@ -185,16 +202,20 @@ def RBuilderRun(ctx:AppContext):
                 preloaded = True
             elif mes.command=="$interact_mode$" and preloaded:
                 if not showInteractModeMessage:
-                    print("\n\n\n\tType 'exit' for quit from interact mode...\n\n")
+                    print("\n\n\n\tPress Esc+Enter or Tab submit command\n\tType 'exit' for quit from interact mode...\n\n")
                     showInteractModeMessage = True
                 if mes.args and mes.args != "any":
                     print(f"Return: {mes.args}")
-                i = input("Command:")
-                
-                if i:
-                    server.addCallback(i)
-                else:
-                    server.addCallback("null")
+                try:
+                    i = _multiline_input("Command:")
+                                
+                    if i:
+                        server.addCallback(i)
+                    else:
+                        server.addCallback("null")
+                except Exception as e:
+                    print(e)
+                    server.addCallback("exit")
         #endregion
 
         #region Hiding windows

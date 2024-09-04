@@ -4,7 +4,7 @@ name: Deploy RBuilder
 on:
   push:
     branches:
-      - main_todo
+      - main
   workflow_dispatch:
 
 env:
