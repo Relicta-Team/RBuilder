@@ -9,6 +9,7 @@ on:
 
 env:
   GH_TOKEN: ${{ secrets.TOKEN }}
+
 jobs:
 
   deploy:
