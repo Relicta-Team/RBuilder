@@ -10,7 +10,7 @@ on:
 env:
   RBUILDER_DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   SHA_FULL: ${{ github.sha }}
-
+  GH_TOKEN: ${{ secrets.TOKEN }}
 jobs:
 
   deploy:
@@ -51,5 +51,3 @@ jobs:
       - name: Deploy to ReSDK
         run: |
           gh workflow run deploy_rbuilder.yml --repo Relicta-Team/ReSDK_A3.vr
-        env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
