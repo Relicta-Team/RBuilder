@@ -8,9 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  RBUILDER_DEPLOY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SHA_FULL: ${{ github.sha }}
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.TOKEN }}
 jobs:
 
   deploy:
