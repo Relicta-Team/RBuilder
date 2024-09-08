@@ -15,7 +15,8 @@ jobs:
 
   deploy:
     name: Build
-    runs-on: windows-latest
+    #runs-on: windows-latest
+    runs-on: ubuntu-20.04
     steps:
       # - name: Setup Python
       #   uses: actions/setup-python@v3.1.4
@@ -46,9 +47,9 @@ jobs:
       #      rb.exe
       #     commit-msg: RBuilder ${{ steps.rbuilder_compiler.outputs.RBUILDER_FULL_VERSION }}
       #     github-token: ${{secrets.TOKEN}}
-      - uses: actions/checkout@v3
+      #- uses: actions/checkout@v3
       - name: Deploy to ReSDK
         run: |
-          gh workflow run deploy_rbuilder.yml --repo Relicta-Team/ReSDK_A3.vr
+          gh workflow run --repo Relicta-Team/ReSDK_A3.vr deploy_rbuilder.yml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
