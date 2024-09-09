@@ -33,6 +33,45 @@
                 "id": "symbol-package"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Increment major",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceRoot}/increment_version.py",
+                "major"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Increment minor",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceRoot}/increment_version.py",
+                "minor"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Increment patch",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceRoot}/increment_version.py",
+                "patch"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
         }
     ]
 }
