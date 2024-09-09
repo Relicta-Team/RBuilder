@@ -115,6 +115,22 @@ def RBuilderRun(ctx:AppContext):
     cliArgs = f'{argsRun} {prof} {" ".join(macroList)}'
     cliArgsList = argsRun.split(' ') + [srvCli,prof] + macroList
 
+    if ctx.args.paramFile != None:
+        patParamF = getAbsPath(ctx.args.paramFile)
+        if not fileExists(patParamF):
+            ctx.logger.error(f"Param file not found: {patParamF}")
+        else:
+            fullPatParams = f"""-par={patParamF}"""
+            cliArgsList.insert(0,fullPatParams)
+    
+    
+    for eparAll in ctx.args.startupParams:
+        for epar in eparAll:
+            if not epar.startswith('-'):
+                epar = '-' + epar
+            cliArgsList.insert(0,epar)
+
+
     cmpPath = getAbsPath(vmDir+"\\"+runner)
     ctx.logger.info(f"Compiler: {cmpPath}")
     ctx.logger.info(f"Args: {'+'.join(cliArgsList)}")
