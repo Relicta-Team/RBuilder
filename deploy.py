@@ -10,7 +10,7 @@ from os.path import abspath as getAbsPath
 from shutil import copytree as dirCopy
 from shutil import rmtree as dirRemove
 
-RBUILDER_DOWNLOAD_PATH = "https://relicta.ru/RBuilder_compiler/cmp_2.16.exe"
+RBUILDER_DOWNLOAD_PATH = "https://relicta.ru/RBuilder_compiler/cmp_2.18.exe"
 RBUILDER_LIBS_DOWNLOAD_PATH = "https://relicta.ru/RBuilder_compiler/addons_v1.zip"
 
 def pack(ctx:AppContext,fromDir,toFile):
