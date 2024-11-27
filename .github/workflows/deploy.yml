@@ -48,5 +48,6 @@ jobs:
       #     github-token: ${{secrets.TOKEN}}
       #- uses: actions/checkout@v3
       - name: Deploy to ReSDK
+        if: ${{ contains(github.event.head_commit.message, '[deploy]') }}
         run: |
           gh workflow run deploy_rbuilder.yml --repo Relicta-Team/ReSDK_A3.vr
