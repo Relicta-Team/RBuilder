@@ -21,3 +21,4 @@ mdl_loader/CfgVehicles.hpp
 app.spec
 vinf_gen.txt
 RBuilder.spec
+platform_path.cache
