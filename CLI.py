@@ -26,7 +26,14 @@ def getParser(ctx:AppContext,config=None):
         prog="RBuilder",
         description="Compiler application",
         add_help=False)
-    
+    """
+        groups:
+
+        init - inialization config/compiler
+        run - running server executable (for test and emulation)
+        build - compile or validate code
+        deploy - deploy to server
+    """
     grp=parser.add_argument_group('Application options')
     
     grp.add_argument('-init',action='store_true',help='Initialize config')
@@ -59,6 +66,24 @@ def getParser(ctx:AppContext,config=None):
     p.add_argument('-def','-f','-d',help="Define macro variable",nargs="+",metavar="MACRO_NAME",action="append",dest="macroDefines",default=[])
     p.add_argument('-p',help="Define Platform startup parameters",nargs="+",metavar="PARAM_NAME",action="append",dest="startupParams",default=[])
     p.add_argument('-pfile',help="Defile param file for Platform startup",metavar="FILE",dest="paramFile")
+    
+    
+    # ----------- deploy -----------
+    p = sub.add_parser('deploy',aliases=['d','pack'],help='Deploy application or editor binary')
+    #value file is optional
+    p.add_argument('-editor',help='Deploy editor binary', nargs='?',metavar='DIR',const='.')
+
+    p.add_argument('-client',help='Create client binary')
+    p.add_argument('-server',help='Create server binary')
+    p.add_argument('-unstable',help='Create unstable binary',action='store_true')
+    p.add_argument('-temp',help='Temp folder for binary files. Default: %(default)s',default=pathes.get('temp',"..\\temp"),metavar='DIR')
+    p.add_argument("-storage",'-s',help='Version storage directory',default=pathes.get('storage',"..\\storage"),metavar='DIR')
+    
+    
+    
+    
+    
+    
     #p._add_container_actions(cflags._container)
     #(p._add_action(act) for act in cflags._actions)
 

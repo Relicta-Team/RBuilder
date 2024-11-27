@@ -7,6 +7,7 @@ import cfg
 import deploy
 from Builder.package import buildProcess
 from Runner import RBuilderRun
+from deployCode.deployMain import deployProcess
 from AppCtx import AppContext
 from APP_VERSION import APP_VERSION
 
@@ -67,6 +68,8 @@ try:
         appExit(ExitCodes.SUCCESS)
     elif args.actionType in ('run','r','start','exec'):
         appExit(RBuilderRun(ctx))
+    elif args.actionType in ('deploy','d','pack'):
+        appExit(deployProcess(ctx))
     
 except KeyboardInterrupt:
     if ctx.logger:

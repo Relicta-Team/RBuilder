@@ -260,7 +260,7 @@ def RBuilderRun(ctx:AppContext):
     if hndl.returncode:
         cext = conv_cmp_exitCode(hndl.returncode)
         ctx.logger.error("RBuilder exited with unknown exit code {}".format(cext))
-        exitCode = ExitCodes.RBUILDER_RUN_APPLICATION_PRELOAD_ERROR
+        exitCode = hndl.returncode
 
     return exitCode
 
