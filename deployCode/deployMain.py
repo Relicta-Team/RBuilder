@@ -105,7 +105,7 @@ class CompileMetainfo:
 		
 		if ctx.args.unstable:
 			ctx.logger.info("Unstable flag enabled")
-			fileCopy(unstableMark,currentFolder)
+			fileCopy(unstableMark,pathJoin(currentFolder,"UNSTABLE"))
 		else:
 			ctx.logger.info("Unstable flag disabled")
 			if fileExists(inver_unstableMark):
