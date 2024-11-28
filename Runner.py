@@ -15,6 +15,7 @@ import win32con
 import psutil
 from ctypes import *
 from command_line import _multiline_input
+from util import getExecutablePath
 
 def RBuilderRun(ctx:AppContext):
     ctx.setCurrentLogger("RB")
@@ -102,6 +103,7 @@ def RBuilderRun(ctx:AppContext):
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_OUTPUT.name] = outputToRBuilder
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_IS_SYMLINK_SOURCES.name] = isSymlinkSources
     macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_RESDK_PATH.name] = f'{getAbsPath(ReSDK_dir)}'
+    macroDict[RBUILDER_PREDEFINED_MACROS.RBUILDER_DIR.name] = f'{getAbsPath(getExecutablePath())}'
     
     mval__ = []
     for m,v in macroDict.items():
@@ -260,7 +262,7 @@ def RBuilderRun(ctx:AppContext):
     if hndl.returncode:
         cext = conv_cmp_exitCode(hndl.returncode)
         ctx.logger.error("RBuilder exited with unknown exit code {}".format(cext))
-        exitCode = hndl.returncode
+        exitCode = cext
 
     return exitCode
 

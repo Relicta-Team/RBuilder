@@ -9,6 +9,7 @@ class AppContext:
     logger: logging.Logger = None
     main_logger: logging.Logger = None
     args: argparse.Namespace = None
+    parser: argparse.ArgumentParser = None
     verbose: bool = False
     fileHandler = None
 

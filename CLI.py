@@ -47,7 +47,7 @@ def getParser(ctx:AppContext,config=None):
     sub = parser.add_subparsers(title='Process type',help='RBuilder process type',dest='actionType',metavar="PROCESS_TYPE")
     # ----------- build -----------
     p = sub.add_parser(name='build',aliases=['b','compile','make'],help='Build/compile application')
-    p.add_argument('-src','-s',help='Source files for compiler. Default: %(default)s',dest='src',default=pathes.get('sources',"..\\src"),metavar='FILE')
+    #! this not need because -sdk exists... p.add_argument('-src','-s',help='Source files for compiler. Default: %(default)s',dest='src',default=pathes.get('sources',"..\\src"),metavar='FILE')
     p.add_argument('-link','-l',help='Use source as simlink',action='store_true',dest='symlink')
     
     grp = p.add_argument_group("Compiler options")
@@ -71,13 +71,13 @@ def getParser(ctx:AppContext,config=None):
     # ----------- deploy -----------
     p = sub.add_parser('deploy',aliases=['d','pack'],help='Deploy application or editor binary')
     #value file is optional
-    p.add_argument('-editor',help='Deploy editor binary', nargs='?',metavar='DIR',const='.')
-
-    p.add_argument('-client',help='Create client binary')
-    p.add_argument('-server',help='Create server binary')
-    p.add_argument('-unstable',help='Create unstable binary',action='store_true')
-    p.add_argument('-temp',help='Temp folder for binary files. Default: %(default)s',default=pathes.get('temp',"..\\temp"),metavar='DIR')
-    p.add_argument("-storage",'-s',help='Version storage directory',default=pathes.get('storage',"..\\storage"),metavar='DIR')
+    p.add_argument('-editor',help='Deploy editor binary', nargs='?',metavar='PLATFORM_DIR',const='.')
+    #for client argument value can be release, debug
+    p.add_argument('-client',help='Create client binary', choices=['release','debug'],nargs='?',const='release')
+    p.add_argument('-server',help='Create server binary',action='store_true')
+    p.add_argument('-unstable',help='Mark compiled binary as unstable',action='store_true')
+    p.add_argument('-bin',help='Temp folder for binary files. Default: %(default)s',default=pathes.get('bin_dir',".\\bin"),metavar='DIR')
+    p.add_argument("-storage",'-s',help='Version storage directory', nargs='?',metavar='DIR',const='.')
     
     
     

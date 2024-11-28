@@ -35,6 +35,10 @@ def pack(ctx:AppContext,fromDir,toFile):
         ctx.logger.error(f"Error on pack: ({e.__class__.__name__}) {e}")
         return False
 
+def isCompilerInitialized(ctx:AppContext):
+    vmDir = ctx.cfg['pathes']['vm_dir']
+    return fileExists(vmDir + "\\mpmissions\\" + RBUILDER_LOADER_FILENAME) and fileExists(vmDir + "\\" + RBUILDER_NAME)
+
 def deployMain(ctx:AppContext):
     ctx.setCurrentLogger("INIT")
     # download base compiler content
@@ -213,9 +217,9 @@ def createModelConfigTemplate(ctx:AppContext):
     m2cpath = os.path.join(src,"M2C.sqf")
     
     ctx.logger.info(f"Starting scan model configs")
-    
+    ctx.logger.debug(f"M2C source: {src}")
     if not fileExists(m2cpath):
-        ctx.logger.error("M2C.sqf not found")
+        ctx.logger.error("M2C.sqf not found: ")
         return False
     cfgList = []
     

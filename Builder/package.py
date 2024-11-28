@@ -11,11 +11,14 @@ from pathlib import *
 import os
 from glob import glob
 
-def createPackage(ctx:AppContext):
+def createPackage(ctx:AppContext,destPath=None):
 
     src = ctx.args.src
-    vmDir = ctx.cfg['pathes']['vm_dir']
-    dest = vmDir + f"\\{RBUILDER_SOURCE_FOLDERNAME}"
+    if destPath is None:
+        vmDir = ctx.cfg['pathes']['vm_dir']
+        dest = vmDir + f"\\{RBUILDER_SOURCE_FOLDERNAME}"
+    else:
+        dest = destPath
     incfiles:str = ctx.cfg['build']['include']
     excfiles:str = ctx.cfg['build']['exclude']
 
@@ -56,6 +59,10 @@ def createPackage(ctx:AppContext):
             ctx.logger.info(f"\t copy: {relpath}")
             os.makedirs(os.path.dirname(destPath+relpath),exist_ok=True)
             fileCopy(ff,destPath + relpath)
+
+def isVMBuildMounted(ctx:AppContext):
+    vmDir = ctx.cfg['pathes']['vm_dir']
+    return fileExists(os.path.join(vmDir,RBUILDER_SOURCE_FOLDERNAME))
 
 def buildProcess(ctx:AppContext):
     ctx.setCurrentLogger("BUILD")

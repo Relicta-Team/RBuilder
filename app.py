@@ -10,6 +10,7 @@ from Runner import RBuilderRun
 from deployCode.deployMain import deployProcess
 from AppCtx import AppContext
 from APP_VERSION import APP_VERSION
+import os
 
 
 try:
@@ -33,7 +34,12 @@ try:
     # args = parser.parse_args(modes[3])
     #args = parser.parse_args(['r','-d','TEST_IO','-d','DEBUG'])
     args = parser.parse_args()
+    #temporary register src path
+    src = os.path.join(args.ReSDK_dir,"Src")
+    setattr(args, "src", src)
+    
     ctx.setContextVar("args",args)
+    ctx.setContextVar("parser",parser)
 
     if args.testapp:
         import os

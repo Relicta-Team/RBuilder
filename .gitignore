@@ -22,3 +22,4 @@ app.spec
 vinf_gen.txt
 RBuilder.spec
 platform_path.cache
+/bin

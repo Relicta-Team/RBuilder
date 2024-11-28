@@ -25,6 +25,7 @@ class RBUILDER_PREDEFINED_MACROS(Enum):
     RBUILDER_AUTO_RELOAD = "Autoreload rbuilder on executed vm commands"
     RBUILDER_IS_SYMLINK_SOURCES = "Source code running from simlink directory"
     RBUILDER_RESDK_PATH = "Path to ReSDK directory"
+    RBUILDER_DIR = "Absolute path to RBuilder directory"
 
 
 class ExitCodes(Enum):

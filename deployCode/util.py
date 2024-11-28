@@ -3,6 +3,7 @@ import shutil
 import os
 import re
 from os.path import exists as fileExists
+from os.path import exists as dirExists
 from os.path import abspath as getAbsPath
 from os.path import dirname as getDirFromFile
 from os.path import basename as getFilenameFromPath
