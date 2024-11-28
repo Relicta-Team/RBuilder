@@ -142,7 +142,7 @@ class CompileMetainfo:
 
 def deployProcess(ctx:AppContext):
 	ctx.setCurrentLogger("Deploy")
-	ctx.logger.info(ctx.args)
+	#ctx.logger.info(ctx.args)
 	if ctx.args.editor:
 		return deployEditor(ctx)
 	
