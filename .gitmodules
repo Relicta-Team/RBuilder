@@ -1,0 +1,3 @@
+[submodule "rv_script"]
+	path = rv_script
+	url = https://github.com/Relicta-Team/rv_script
