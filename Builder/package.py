@@ -30,7 +30,7 @@ def createPackage(ctx:AppContext,destPath=None):
 
     excFileList = excfiles.split(';')
     #by default add client in excluded files
-    excFileList.append("client")
+    excFileList.append("Src\\client")
 
     if fileExists(dest):
         ctx.logger.info(f"Removing previous sources: {getAbsPath(dest)}")
@@ -42,6 +42,7 @@ def createPackage(ctx:AppContext,destPath=None):
             for ex in excFileList:
 #                if os.path.join(src,name) == os.path
                 if Path(src,name).match(ex):
+                    ctx.logger.debug(f"Excluded: {os.path.join(src,name)} (because found '{ex}')")
                     rf.append(name)
         return rf
 
