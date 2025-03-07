@@ -1,6 +1,6 @@
 iniparser2==3.0.0
 requests==2.31.0
-pyinstaller==5.13.0
+pyinstaller==6.10.0
 psutil==6.0.0
 prompt_toolkit==3.0.47
 pywin32==306
