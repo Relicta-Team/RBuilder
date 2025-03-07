@@ -438,13 +438,15 @@ def deployEditor(ctx:AppContext):
 		return -7
 	if os.path.exists(missionTo):
 		yes = {'yes','y', 'ye'}
-		no = {'no','n',''}
+		#no = {'no','n',''}
 		ctx.logger.info("Mission file already exists. Overwrite? [y/n] (Enter to skip)")
 		choice = input().lower()
 		if choice in yes:
 			fileRemove(missionTo)
-		elif choice in no:
+			fileCopy(missionFrom,missionTo)
+		else:
 			ctx.logger.info("Skipping deletion of previous mission file")
-	fileCopy(missionFrom,missionTo)
+	else:
+		fileCopy(missionFrom,missionTo)
 
 	return 0
