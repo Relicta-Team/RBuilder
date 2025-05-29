@@ -137,6 +137,11 @@ def downloadCompiler(ctx:AppContext):
         ctx.logger.info(f"Downloading {RBUILDER_DOWNLOAD_PATH}")
         
         session = requests.Session()
+        session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0 Safari/537.36",
+            "Accept": "*/*",
+            "Connection": "keep-alive"
+        })
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504],allowed_methods=["GET"],raise_on_status=False)
         session.mount('http://', HTTPAdapter(max_retries=retries))
         session.mount('https://', HTTPAdapter(max_retries=retries))
@@ -161,6 +166,8 @@ def downloadCompiler(ctx:AppContext):
         return True
 
     except Exception as e:
+        if response and response != None:
+            ctx.logger.error("Status code: {}; Headers: {}".format(response.status_code, response.headers))
         ctx.logger.error(f"Error initializing compiler: ({e.__class__.__name__}) {e}")
         return False
     
@@ -186,6 +193,11 @@ def downloadLibs(ctx:AppContext):
         ctx.logger.info(f"Downloading {RBUILDER_LIBS_DOWNLOAD_PATH}")
 
         session = requests.Session()
+        session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0 Safari/537.36",
+            "Accept": "*/*",
+            "Connection": "keep-alive"
+        })
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504],allowed_methods=["GET"],raise_on_status=False)
         session.mount('http://', HTTPAdapter(max_retries=retries))
         session.mount('https://', HTTPAdapter(max_retries=retries))
@@ -222,6 +234,8 @@ def downloadLibs(ctx:AppContext):
 
         return True
     except Exception as e:
+        if response and response != None:
+            ctx.logger.error("Status code: {}; Headers: {}".format(response.status_code, response.headers))
         ctx.logger.error(f"Error initializing addons: ({e.__class__.__name__}) {e}")
         return False
     return True
