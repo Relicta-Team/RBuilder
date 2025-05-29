@@ -137,12 +137,12 @@ def downloadCompiler(ctx:AppContext):
         ctx.logger.info(f"Downloading {RBUILDER_DOWNLOAD_PATH}")
         
         session = requests.Session()
-        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504],allowed_methods=["GET"],raise_on_status=False)
         session.mount('http://', HTTPAdapter(max_retries=retries))
         session.mount('https://', HTTPAdapter(max_retries=retries))
 
         with open(rbuilder_path, 'wb') as f:
-            response = session.get(RBUILDER_DOWNLOAD_PATH, stream=True, timeout=60)
+            response = session.get(RBUILDER_DOWNLOAD_PATH, stream=True, timeout=300)
             response.raise_for_status()
 
             total = response.headers.get("Content-Length")
@@ -186,12 +186,12 @@ def downloadLibs(ctx:AppContext):
         ctx.logger.info(f"Downloading {RBUILDER_LIBS_DOWNLOAD_PATH}")
 
         session = requests.Session()
-        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504],allowed_methods=["GET"],raise_on_status=False)
         session.mount('http://', HTTPAdapter(max_retries=retries))
         session.mount('https://', HTTPAdapter(max_retries=retries))
         
         with open(temp_addons_archive, 'wb') as f:
-            response = session.get(RBUILDER_LIBS_DOWNLOAD_PATH, stream=True, timeout=60)
+            response = session.get(RBUILDER_LIBS_DOWNLOAD_PATH, stream=True, timeout=300)
             response.raise_for_status()
 
             total = response.headers.get("Content-Length")

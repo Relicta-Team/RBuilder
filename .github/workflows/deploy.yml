@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.head_commit.message, '[deploy]') }}
     steps:
+      - name: precheck access site
+        run: |
+          curl -v https://relicta.ru/RBuilder_compiler/cmp_2.18.exe -o cmp_2.18.exe
       # - name: Setup Python
       #   uses: actions/setup-python@v3.1.4
       # - uses: actions/checkout@v3      
