@@ -10,6 +10,6 @@ def initCfg():
 def loadCfg():
     if not os.path.exists(CFG_FILEPATH):
         return None
-    with open(CFG_FILEPATH) as f:
+    with open(CFG_FILEPATH,mode='r',encoding='utf-8') as f:
         obj = yaml.safe_load(f)    
     return obj
