@@ -3,6 +3,8 @@ from Constants import *
 import urllib.request
 from AppCtx import AppContext
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from packlib.a3lib import *
 import zipfile
 from os.path import exists as fileExists
@@ -134,24 +136,30 @@ def downloadCompiler(ctx:AppContext):
 
         ctx.logger.info(f"Downloading {RBUILDER_DOWNLOAD_PATH}")
         
+        session = requests.Session()
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+        session.mount('http://', HTTPAdapter(max_retries=retries))
+        session.mount('https://', HTTPAdapter(max_retries=retries))
+
         with open(rbuilder_path, 'wb') as f:
-            respone = requests.get(RBUILDER_DOWNLOAD_PATH, stream=True)
-            total = respone.headers.get("Content-Length")
+            response = session.get(RBUILDER_DOWNLOAD_PATH, stream=True, timeout=60)
+            response.raise_for_status()
+
+            total = response.headers.get("Content-Length")
             if total is None:
                 raise Exception("No content length header")
-            else:
-                dl = 0
-                total = int(total)
-                for data in respone.iter_content(chunk_size=4096 * 1000):
-                    dl += len(data)
-                    f.write(data)
-                    done = int(100 * dl / total)
-                    ctx.logger.info('Downloading {}%'.format(done))
-                    #ctx.logger.info("\r[{}{}]".format('█' * done, '.' * (50 - done)))
+
+            dl = 0
+            total = int(total)
+            for data in response.iter_content(chunk_size=4096 * 1000):
+                dl += len(data)
+                f.write(data)
+                done = int(100 * dl / total)
+                ctx.logger.info('Downloading {}%'.format(done))
         
         ctx.logger.info("Compiler downloaded")
-
         return True
+
     except Exception as e:
         ctx.logger.error(f"Error initializing compiler: ({e.__class__.__name__}) {e}")
         return False
@@ -176,16 +184,23 @@ def downloadLibs(ctx:AppContext):
             os.remove(temp_addons_archive)
 
         ctx.logger.info(f"Downloading {RBUILDER_LIBS_DOWNLOAD_PATH}")
+
+        session = requests.Session()
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
+        session.mount('http://', HTTPAdapter(max_retries=retries))
+        session.mount('https://', HTTPAdapter(max_retries=retries))
         
         with open(temp_addons_archive, 'wb') as f:
-            respone = requests.get(RBUILDER_LIBS_DOWNLOAD_PATH, stream=True)
-            total = respone.headers.get("Content-Length")
+            response = session.get(RBUILDER_LIBS_DOWNLOAD_PATH, stream=True, timeout=60)
+            response.raise_for_status()
+
+            total = response.headers.get("Content-Length")
             if total is None:
                 raise Exception("No content length header")
             else:
                 dl = 0
                 total = int(total)
-                for data in respone.iter_content(chunk_size=4096 * 1000):
+                for data in response.iter_content(chunk_size=4096 * 1000):
                     dl += len(data)
                     f.write(data)
                     done = int(100 * dl / total)
