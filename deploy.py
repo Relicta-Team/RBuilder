@@ -248,7 +248,7 @@ def createModelConfigTemplate(ctx:AppContext):
     ctx.logger.info(f"Starting scan model configs")
     ctx.logger.debug(f"M2C source: {src}")
     if not fileExists(m2cpath):
-        ctx.logger.error("M2C.sqf not found: ")
+        ctx.logger.error("M2C.sqf not found: " + m2cpath)
         return False
     cfgList = []
     
